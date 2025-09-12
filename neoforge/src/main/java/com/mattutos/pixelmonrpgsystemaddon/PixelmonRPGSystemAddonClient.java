@@ -9,6 +9,10 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGData;
+import com.mattutos.pixelmonrpgsystemaddon.client.ClientPlayerRPGData;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = PixelmonRPGSystemAddon.MODID, dist = Dist.CLIENT)
@@ -27,5 +31,15 @@ public class PixelmonRPGSystemAddonClient {
         // Some client setup code
         PixelmonRPGSystemAddon.LOGGER.info("HELLO FROM CLIENT SETUP");
         PixelmonRPGSystemAddon.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+    }
+    
+    @SubscribeEvent
+    static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity().level().isClientSide) {
+            PlayerRPGData data = event.getEntity().getCapability(PlayerRPGCapability.INSTANCE);
+            if (data != null) {
+                ClientPlayerRPGData.setPlayerData(data.getExperience(), data.getLevel());
+            }
+        }
     }
 }

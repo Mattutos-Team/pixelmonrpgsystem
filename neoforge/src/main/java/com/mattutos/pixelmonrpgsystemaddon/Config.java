@@ -34,6 +34,22 @@ public class Config {
             .comment("A list of items to log on common setup.")
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", Config::validateItemName);
 
+    public static final ModConfigSpec.DoubleValue PLAYER_XP_MULTIPLIER = BUILDER
+            .comment("Multiplicador de XP que o jogador recebe das batalhas")
+            .defineInRange("playerXpMultiplier", 0.1, 0.01, 1.0);
+
+    public static final ModConfigSpec.IntValue MAX_PLAYER_LEVEL = BUILDER
+            .comment("Nível máximo do jogador")
+            .defineInRange("maxPlayerLevel", 100, 1, 1000);
+
+    public static final ModConfigSpec.BooleanValue ENABLE_CAPTURE_RESTRICTIONS = BUILDER
+            .comment("Ativar restrições de captura baseadas no nível do jogador")
+            .define("enableCaptureRestrictions", true);
+
+    public static final ModConfigSpec.BooleanValue ENABLE_BATTLE_RESTRICTIONS = BUILDER
+            .comment("Ativar avisos de uso de Pokémon acima do nível do jogador")
+            .define("enableBattleRestrictions", true);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static boolean validateItemName(final Object obj) {
