@@ -102,6 +102,9 @@ public class PixelmonRPGSystemAddon {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
         LOGGER.info("Pixelmon RPG System Addon initialized!");
+        
+        // Register Pixelmon event handler
+        com.pixelmonmod.pixelmon.Pixelmon.EVENT_BUS.register(new com.mattutos.pixelmonrpgsystemaddon.events.PixelmonEventHandler());
 
 
         if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {

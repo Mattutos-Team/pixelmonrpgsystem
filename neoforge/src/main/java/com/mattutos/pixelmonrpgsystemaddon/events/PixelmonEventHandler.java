@@ -13,14 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-@EventBusSubscriber(modid = PixelmonRPGSystemAddon.MODID)
 public class PixelmonEventHandler {
     
     @SubscribeEvent
-    public static void onPokemonGainExperience(ExperienceGainEvent event) {
+    public void onPokemonGainExperience(ExperienceGainEvent event) {
         if (event.pokemon.getOwnerPlayer() != null) {
             Player player = event.pokemon.getOwnerPlayer();
             PlayerRPGData data = player.getCapability(PlayerRPGCapability.INSTANCE);
@@ -43,7 +41,7 @@ public class PixelmonEventHandler {
     }
     
     @SubscribeEvent
-    public static void onPokemonCapture(CaptureEvent.StartCapture event) {
+    public void onPokemonCapture(CaptureEvent.StartCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             Player player = event.getPlayer();
             PlayerRPGData data = player.getCapability(PlayerRPGCapability.INSTANCE);
@@ -62,7 +60,7 @@ public class PixelmonEventHandler {
     }
     
     @SubscribeEvent
-    public static void onBattleEnd(BattleEndEvent event) {
+    public void onBattleEnd(BattleEndEvent event) {
         if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
             event.getPlayers().forEach(battlePlayer -> {
                 Player player = battlePlayer;
