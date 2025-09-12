@@ -157,6 +157,10 @@ dependencies {
     // at runtime, use the full JEI jar for NeoForge
     runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
 
+    // jade_version example: 15.10.0+neoforge
+    // Visit https://modrinth.com/mod/jade/versions?l=neoforge to get the latest version
+    implementation "maven.modrinth:jade:${project.jade_version}+neoforge"
+
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"

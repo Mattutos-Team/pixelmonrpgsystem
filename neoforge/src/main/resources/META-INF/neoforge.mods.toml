@@ -87,12 +87,12 @@ config="${mod_id}.mixins.json"
     side="BOTH"
 
 # Pixelmon dependency
-#[[dependencies.${mod_id}]]
-#    modId="pixelmon"
-#    type="required"
-#    versionRange="[${pixelmon_version},)"
-#    ordering="NONE"
-#    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="pixelmon"
+    type="required"
+    versionRange="[${pixelmon_version},)"
+    ordering="NONE"
+    side="BOTH"
 
 
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
