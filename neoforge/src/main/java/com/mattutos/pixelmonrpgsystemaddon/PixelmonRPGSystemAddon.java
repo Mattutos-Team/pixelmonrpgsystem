@@ -3,6 +3,8 @@ package com.mattutos.pixelmonrpgsystemaddon;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
+import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystemaddon.network.NetworkHandler;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -30,6 +32,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(PixelmonRPGSystemAddon.MODID)
@@ -76,6 +80,12 @@ public class PixelmonRPGSystemAddon {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
+        // Register capabilities
+        modEventBus.addListener(this::registerCapabilities);
+        
+        // Register network packets
+        modEventBus.addListener(this::registerPackets);
+
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (PixelmonRPGSystemAddon) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
@@ -91,6 +101,8 @@ public class PixelmonRPGSystemAddon {
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
+        LOGGER.info("Pixelmon RPG System Addon initialized!");
+
 
         if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
             LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
@@ -106,6 +118,14 @@ public class PixelmonRPGSystemAddon {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
             event.accept(EXAMPLE_BLOCK_ITEM);
         }
+    }
+
+    private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        PlayerRPGCapability.register(event);
+    }
+    
+    private void registerPackets(RegisterPayloadHandlersEvent event) {
+        NetworkHandler.registerPackets(event);
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
