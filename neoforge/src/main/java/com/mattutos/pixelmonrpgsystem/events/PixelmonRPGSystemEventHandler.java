@@ -1,6 +1,7 @@
 package com.mattutos.pixelmonrpgsystem.events;
 
 import com.mattutos.pixelmonrpgsystem.Config;
+import com.mattutos.pixelmonrpgsystem.cache.BattleLevelCache;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
@@ -11,13 +12,24 @@ import com.pixelmonmod.pixelmon.api.events.battles.BattleEndEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
+import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
+import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
+import com.pixelmonmod.pixelmon.battles.controller.BattleController;
+import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
+import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 public class PixelmonRPGSystemEventHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(PixelmonRPGSystemEventHandler.class);
 
     @SubscribeEvent
     public void onPokemonGainExperience(ExperienceGainEvent event) {
@@ -52,7 +64,7 @@ public class PixelmonRPGSystemEventHandler {
                 int playerLevel = data.getLevel();
 
                 if (pokemonLevel > playerLevel) {
-                    // reduzir a probablidade de captura
+                    // REDUCE THE PROBABILITY OF CAPTURING THE POKEMON
                     player.sendSystemMessage(Component.literal(
                             "§cEste pokémon é de nível " + pokemonLevel + ", mas você é nível " + playerLevel + ". A captura será mais difícil!"
                     ));
@@ -78,15 +90,22 @@ public class PixelmonRPGSystemEventHandler {
                 }
             });
         }
+
+        restoreLevelsAfterBattle(event);
     }
 
     @SubscribeEvent
     public void onBattleStart(BattleStartedEvent.Post event) {
-        handleTeam(event.getTeamOne());
-        handleTeam(event.getTeamTwo());
+        recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
+        recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
+
+        if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
+            decreaseTheLevelWhenBattleStarts(event.getTeamOne());
+            decreaseTheLevelWhenBattleStarts(event.getTeamTwo());
+        }
     }
 
-    private void handleTeam(com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant[] team) {
+    private void recalculateStatsBasedOnPlayerLevel(com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant[] team) {
         for (var participant : team) {
             if (participant instanceof PlayerParticipant playerPart) {
                 ServerPlayer player = (ServerPlayer) playerPart.getEntity();
@@ -102,23 +121,97 @@ public class PixelmonRPGSystemEventHandler {
                         if (pokemon == null) continue;
                         PermanentStats stats = pokemon.getStats();
 
-                        int currentAttack = stats.getAttack();
-
-                        player.sendSystemMessage(Component.literal(
-                                "Multiplicador atual " + multiplier
-                        ));
-
-                        player.sendSystemMessage(Component.literal(
-                                "Alterando o status defense de: " + currentAttack + " para: " + (currentAttack * multiplier + "no pokemon " + pokemon.getDisplayName())
-                        ));
-
-
                         stats.setAttack((int) (stats.getAttack() * multiplier));
                         stats.setDefense((int) (stats.getDefense() * multiplier));
                         stats.setSpecialAttack((int) (stats.getSpecialAttack() * multiplier));
                         stats.setSpecialDefense((int) (stats.getSpecialDefense() * multiplier));
                         stats.setSpeed((int) (stats.getSpeed() * multiplier));
                         stats.setHP((int) (stats.getHP() * multiplier));
+                    }
+                }
+            }
+        }
+    }
+
+    private void decreaseTheLevelWhenBattleStarts(BattleParticipant[] team) {
+        for (BattleParticipant part : team) {
+            if (!(part instanceof PlayerParticipant playerPart)) continue;
+
+            ServerPlayer player = (ServerPlayer) playerPart.getEntity();
+            PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
+            if (rpg == null) continue;
+            int playerLevel = rpg.getLevel();
+
+            for (Pokemon pokemon : playerPart.getStorage().getTeam()) {
+                if (pokemon == null) continue;
+
+                int pokeLevel = pokemon.getPokemonLevel();
+                if (pokeLevel > playerLevel) {
+                    UUID id = pokemon.getUUID();
+
+                    BattleLevelCache.originalLevels.put(id, pokeLevel);
+                    BattleLevelCache.originalExperiences.put(id, pokemon.getExperience());
+                    BattleLevelCache.originalDoesLevel.put(id, pokemon.doesLevel());
+
+                    pokemon.setLevel(playerLevel);
+                    pokemon.getStats().recalculateStats();
+
+                    log.info("ATTACK: " + pokemon.getStats().getAttack() + " Meu nome é " + pokemon.getDisplayName());
+                    log.info("HP: " + pokemon.getStats().getHP() + " Meu nome é " + pokemon.getDisplayName());
+
+                    pokemon.markDirty(com.pixelmonmod.pixelmon.comm.EnumUpdateType.Stats);
+
+                    if (player != null) {
+                        PlayerPartyStorage party = StorageProxy.getPartyNow(player);
+                        if (party != null) party.sendCacheToPlayer(player);
+                    }
+
+                    BattleController bc = pokemon.getBattleController();
+                    if (bc != null) {
+                        PixelmonWrapper pw = bc.getPokemonFromUUID(id);
+                        if (pw != null) {
+                            bc.modifyStats(pw);
+                            bc.updateFormChange(pw);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void restoreLevelsAfterBattle(BattleEndEvent event) {
+        BattleController bc = event.getBattleController();
+        for (Player p : event.getPlayers()) {
+            if (!(p instanceof ServerPlayer serverPlayer)) continue;
+
+            PlayerPartyStorage party = StorageProxy.getPartyNow(serverPlayer);
+            if (party == null) continue;
+
+            for (Pokemon pokemon : party.getTeam()) {
+                if (pokemon == null) continue;
+                UUID id = pokemon.getUUID();
+
+                Integer oldLevel = BattleLevelCache.originalLevels.remove(id);
+                if (oldLevel == null) continue;
+
+                Integer oldExp = BattleLevelCache.originalExperiences.remove(id);
+                Boolean oldDoesLevel = BattleLevelCache.originalDoesLevel.remove(id);
+
+                pokemon.setLevel(oldLevel);
+                if (oldExp != null) pokemon.setExperience(oldExp);
+                if (oldDoesLevel != null) pokemon.setDoesLevel(oldDoesLevel);
+
+                pokemon.getStats().recalculateStats();
+                pokemon.markDirty(com.pixelmonmod.pixelmon.comm.EnumUpdateType.Stats,
+                        com.pixelmonmod.pixelmon.comm.EnumUpdateType.Experience);
+
+                party.sendCacheToPlayer(serverPlayer);
+
+                if (bc != null) {
+                    PixelmonWrapper pw = bc.getPokemonFromUUID(id);
+                    if (pw != null) {
+                        bc.modifyStats(pw);
+                        bc.updateFormChange(pw);
                     }
                 }
             }
