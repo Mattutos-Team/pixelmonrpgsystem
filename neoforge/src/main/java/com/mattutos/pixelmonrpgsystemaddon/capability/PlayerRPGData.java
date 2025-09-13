@@ -49,6 +49,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         int nextLevelXP = level * level * 100;
         return nextLevelXP - experience;
     }
+
     
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
