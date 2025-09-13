@@ -3,8 +3,8 @@ package com.mattutos.pixelmonrpgsystemaddon;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystemaddon.network.NetworkHandler;
+import com.mattutos.pixelmonrpgsystemaddon.registry.AttachmentsRegistry;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -32,7 +32,6 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -80,8 +79,8 @@ public class PixelmonRPGSystemAddon {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
-        // Register capabilities
-        modEventBus.addListener(this::registerCapabilities);
+        // Register attachments
+        AttachmentsRegistry.ATTACHMENTS.register(modEventBus);
         
         // Register network packets
         modEventBus.addListener(this::registerPackets);
@@ -123,9 +122,6 @@ public class PixelmonRPGSystemAddon {
         }
     }
 
-    private void registerCapabilities(RegisterCapabilitiesEvent event) {
-        PlayerRPGCapability.register(event);
-    }
     
     private void registerPackets(RegisterPayloadHandlersEvent event) {
         NetworkHandler.registerPackets(event);

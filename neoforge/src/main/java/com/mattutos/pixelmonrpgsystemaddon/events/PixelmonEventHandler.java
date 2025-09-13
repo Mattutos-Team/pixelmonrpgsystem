@@ -1,7 +1,6 @@
 package com.mattutos.pixelmonrpgsystemaddon.events;
 
 import com.mattutos.pixelmonrpgsystemaddon.PixelmonRPGSystemAddon;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGData;
 import com.mattutos.pixelmonrpgsystemaddon.Config;
 import com.mattutos.pixelmonrpgsystemaddon.network.PlayerRPGSyncPacket;
@@ -21,12 +20,12 @@ public class PixelmonEventHandler {
     public void onPokemonGainExperience(ExperienceGainEvent event) {
         if (event.pokemon.getOwnerPlayer() != null) {
             Player player = event.pokemon.getOwnerPlayer();
-            PlayerRPGData data = player.getCapability(PlayerRPGCapability.INSTANCE);
+            PlayerRPGData data = PlayerRPGData.get(player);
             if (data != null) {
                 double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
                 int playerXP = Math.max(1, (int)(event.getExperience() * multiplier));
                 int oldLevel = data.getLevel();
-                data.addExperience(playerXP);
+                data.addExperience(playerXP, player);
                 int newLevel = data.getLevel();
                 
                 if (player instanceof ServerPlayer serverPlayer) {
@@ -44,7 +43,7 @@ public class PixelmonEventHandler {
     public void onPokemonCapture(CaptureEvent.StartCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             Player player = event.getPlayer();
-            PlayerRPGData data = player.getCapability(PlayerRPGCapability.INSTANCE);
+            PlayerRPGData data = PlayerRPGData.get(player);
             if (data != null) {
                 int pokemonLevel = event.getPokemon().getPokemonLevel();
                 int playerLevel = data.getLevel();
@@ -64,7 +63,7 @@ public class PixelmonEventHandler {
         if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
             event.getPlayers().forEach(battlePlayer -> {
                 Player player = battlePlayer;
-                PlayerRPGData data = player.getCapability(PlayerRPGCapability.INSTANCE);
+                PlayerRPGData data = PlayerRPGData.get(player);
                 if (data != null) {
                     int playerLevel = data.getLevel();
                     

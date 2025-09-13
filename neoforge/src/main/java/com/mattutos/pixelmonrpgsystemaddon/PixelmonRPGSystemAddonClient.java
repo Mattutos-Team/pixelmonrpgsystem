@@ -9,7 +9,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGData;
 import com.mattutos.pixelmonrpgsystemaddon.client.ClientPlayerRPGData;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -36,7 +35,7 @@ public class PixelmonRPGSystemAddonClient {
     @SubscribeEvent
     static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity().level().isClientSide) {
-            PlayerRPGData data = event.getEntity().getCapability(PlayerRPGCapability.INSTANCE);
+            PlayerRPGData data = PlayerRPGData.get(event.getEntity());
             if (data != null) {
                 ClientPlayerRPGData.setPlayerData(data.getExperience(), data.getLevel());
             }
