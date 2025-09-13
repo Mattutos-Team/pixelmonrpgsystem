@@ -1,7 +1,7 @@
-package com.mattutos.pixelmonrpgsystemaddon.network;
+package com.mattutos.pixelmonrpgsystem.network;
 
-import com.mattutos.pixelmonrpgsystemaddon.PixelmonRPGSystemAddon;
-import com.mattutos.pixelmonrpgsystemaddon.client.ClientPlayerRPGData;
+import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
+import com.mattutos.pixelmonrpgsystem.client.ClientPlayerRPGData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -9,7 +9,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record PlayerRPGSyncPacket(int experience, int level) implements CustomPacketPayload {
 
-    public static final Type<PlayerRPGSyncPacket> TYPE = new Type<>(PixelmonRPGSystemAddon.prefix("player_rpg_sync"));
+    public static final Type<PlayerRPGSyncPacket> TYPE = new Type<>(PixelmonRPGSystem.prefix("player_rpg_sync"));
 
     public static final StreamCodec<FriendlyByteBuf, PlayerRPGSyncPacket> STREAM_CODEC = StreamCodec.composite(
             StreamCodec.of(FriendlyByteBuf::writeInt, FriendlyByteBuf::readInt), PlayerRPGSyncPacket::experience,

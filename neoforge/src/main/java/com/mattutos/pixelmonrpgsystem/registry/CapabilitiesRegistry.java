@@ -1,7 +1,7 @@
-package com.mattutos.pixelmonrpgsystemaddon.registry;
+package com.mattutos.pixelmonrpgsystem.registry;
 
-import com.mattutos.pixelmonrpgsystemaddon.PixelmonRPGSystemAddon;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
+import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.capabilities.EntityCapability;
@@ -9,7 +9,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 public class CapabilitiesRegistry {
     public static final EntityCapability<PlayerRPGCapability, Void> PLAYER_RPG_CAPABILITY = EntityCapability.createVoid(
-            PixelmonRPGSystemAddon.prefix("player_rpg_capability"), PlayerRPGCapability.class);
+            PixelmonRPGSystem.prefix("player_rpg_capability"), PlayerRPGCapability.class);
 
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {

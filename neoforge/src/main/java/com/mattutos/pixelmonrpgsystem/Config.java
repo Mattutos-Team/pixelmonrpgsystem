@@ -1,4 +1,4 @@
-package com.mattutos.pixelmonrpgsystemaddon;
+package com.mattutos.pixelmonrpgsystem;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

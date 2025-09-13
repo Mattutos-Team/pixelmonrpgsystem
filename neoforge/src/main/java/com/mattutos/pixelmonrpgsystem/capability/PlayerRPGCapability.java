@@ -1,6 +1,6 @@
-package com.mattutos.pixelmonrpgsystemaddon.capability;
+package com.mattutos.pixelmonrpgsystem.capability;
 
-import com.mattutos.pixelmonrpgsystemaddon.registry.AttachmentsRegistry;
+import com.mattutos.pixelmonrpgsystem.registry.AttachmentsRegistry;
 import net.minecraft.world.entity.LivingEntity;
 
 public class PlayerRPGCapability {

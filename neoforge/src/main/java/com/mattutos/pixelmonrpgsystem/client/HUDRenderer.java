@@ -1,6 +1,6 @@
-package com.mattutos.pixelmonrpgsystemaddon.client;
+package com.mattutos.pixelmonrpgsystem.client;
 
-import com.mattutos.pixelmonrpgsystemaddon.PixelmonRPGSystemAddon;
+import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,7 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
-@EventBusSubscriber(modid = PixelmonRPGSystemAddon.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = PixelmonRPGSystem.MODID, value = Dist.CLIENT)
 public class HUDRenderer {
 
     @SubscribeEvent

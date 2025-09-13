@@ -1,10 +1,10 @@
-package com.mattutos.pixelmonrpgsystemaddon.events;
+package com.mattutos.pixelmonrpgsystem.events;
 
-import com.mattutos.pixelmonrpgsystemaddon.PixelmonRPGSystemAddon;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
-import com.mattutos.pixelmonrpgsystemaddon.network.NetworkHandler;
-import com.mattutos.pixelmonrpgsystemaddon.network.PlayerRPGSyncPacket;
-import com.mattutos.pixelmonrpgsystemaddon.registry.CapabilitiesRegistry;
+import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
+import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
+import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
+import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -19,9 +19,9 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
-@Mod(value = PixelmonRPGSystemAddon.MODID, dist = Dist.CLIENT)
+@Mod(value = PixelmonRPGSystem.MODID, dist = Dist.CLIENT)
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-@EventBusSubscriber(modid = PixelmonRPGSystemAddon.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = PixelmonRPGSystem.MODID, value = Dist.CLIENT)
 public class PixelmonRPGSystemClient {
     public PixelmonRPGSystemClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
@@ -33,8 +33,8 @@ public class PixelmonRPGSystemClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         // Some client setup code
-        PixelmonRPGSystemAddon.LOGGER.info("HELLO FROM CLIENT SETUP");
-        PixelmonRPGSystemAddon.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        PixelmonRPGSystem.LOGGER.info("HELLO FROM CLIENT SETUP");
+        PixelmonRPGSystem.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
 
     @SubscribeEvent

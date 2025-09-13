@@ -1,10 +1,10 @@
-package com.mattutos.pixelmonrpgsystemaddon.events;
+package com.mattutos.pixelmonrpgsystem.events;
 
-import com.mattutos.pixelmonrpgsystemaddon.Config;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
-import com.mattutos.pixelmonrpgsystemaddon.network.NetworkHandler;
-import com.mattutos.pixelmonrpgsystemaddon.network.PlayerRPGSyncPacket;
-import com.mattutos.pixelmonrpgsystemaddon.registry.CapabilitiesRegistry;
+import com.mattutos.pixelmonrpgsystem.Config;
+import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
+import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
+import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleEndEvent;
