@@ -1,9 +1,10 @@
 package com.mattutos.pixelmonrpgsystemaddon.events;
 
 import com.mattutos.pixelmonrpgsystemaddon.Config;
-import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGData;
+import com.mattutos.pixelmonrpgsystemaddon.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystemaddon.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystemaddon.network.PlayerRPGSyncPacket;
+import com.mattutos.pixelmonrpgsystemaddon.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleEndEvent;
@@ -16,18 +17,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 
-public class PixelmonEventHandler {
+public class PixelmonRPGSystemEventHandler {
 
     @SubscribeEvent
     public void onPokemonGainExperience(ExperienceGainEvent event) {
         if (event.pokemon.getOwnerPlayer() != null) {
             Player player = event.pokemon.getOwnerPlayer();
-            PlayerRPGData data = PlayerRPGData.get(player);
+            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
             if (data != null) {
                 double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
                 int playerXP = Math.max(1, (int) (event.getExperience() * multiplier));
                 int oldLevel = data.getLevel();
-                data.addExperience(playerXP, player);
+                data.addExperience(playerXP);
                 int newLevel = data.getLevel();
 
                 if (player instanceof ServerPlayer serverPlayer) {
@@ -45,16 +46,19 @@ public class PixelmonEventHandler {
     public void onPokemonCapture(CaptureEvent.StartCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             Player player = event.getPlayer();
-            PlayerRPGData data = PlayerRPGData.get(player);
+            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
             if (data != null) {
                 int pokemonLevel = event.getPokemon().getPokemonLevel();
                 int playerLevel = data.getLevel();
 
                 if (pokemonLevel > playerLevel) {
-                    event.setCanceled(true);
+                    // reduzir a probablidade de captura
                     player.sendSystemMessage(Component.literal(
-                            "§cVocê precisa ser nível " + pokemonLevel + " para capturar este Pokémon! (Seu nível atual: " + playerLevel + ")"
+                            "§cEste pokémon é de nível " + pokemonLevel + ", mas você é nível " + playerLevel + ". A captura será mais difícil!"
                     ));
+
+                    int catchRate = event.getCaptureValues().getCatchRate();
+                    event.getCaptureValues().setCatchRate((int) (catchRate * 0.01));
                 }
             }
         }
@@ -63,13 +67,12 @@ public class PixelmonEventHandler {
     @SubscribeEvent
     public void onBattleEnd(BattleEndEvent event) {
         if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
-            event.getPlayers().forEach(battlePlayer -> {
-                Player player = battlePlayer;
-                PlayerRPGData data = PlayerRPGData.get(player);
+            event.getPlayers().forEach(player -> {
+                PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
                 if (data != null) {
                     int playerLevel = data.getLevel();
 
-                    battlePlayer.sendSystemMessage(Component.literal(
+                    player.sendSystemMessage(Component.literal(
                             "§eBatalha finalizada! Seu nível atual: " + playerLevel
                     ));
                 }
@@ -88,7 +91,7 @@ public class PixelmonEventHandler {
             if (participant instanceof PlayerParticipant playerPart) {
                 ServerPlayer player = (ServerPlayer) playerPart.getEntity();
 
-                PlayerRPGData rpg = PlayerRPGData.get(player);
+                PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
 
                 if (rpg != null) {
                     int level = rpg.getLevel();
