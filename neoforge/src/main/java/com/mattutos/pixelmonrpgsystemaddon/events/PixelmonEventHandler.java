@@ -16,10 +16,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PixelmonEventHandler {
 
@@ -94,7 +90,7 @@ public class PixelmonEventHandler {
 
                 PlayerRPGData rpg = player.getCapability(PlayerRPGCapability.INSTANCE);
 
-                if(rpg != null)  {
+                if (rpg != null) {
                     int level = rpg.getLevel();
                     double multiplier = 1.0 + (level / 10) * 0.05;
                     if (multiplier > 1.5) multiplier = 1.5;
@@ -114,12 +110,12 @@ public class PixelmonEventHandler {
                         ));
 
 
-                        stats.setAttack((int)(stats.getAttack() * multiplier));
-                        stats.setDefense((int)(stats.getDefense() * multiplier));
-                        stats.setSpecialAttack((int)(stats.getSpecialAttack() * multiplier));
-                        stats.setSpecialDefense((int)(stats.getSpecialDefense() * multiplier));
-                        stats.setSpeed((int)(stats.getSpeed() * multiplier));
-                        stats.setHP((int)(stats.getHP() * multiplier));
+                        stats.setAttack((int) (stats.getAttack() * multiplier));
+                        stats.setDefense((int) (stats.getDefense() * multiplier));
+                        stats.setSpecialAttack((int) (stats.getSpecialAttack() * multiplier));
+                        stats.setSpecialDefense((int) (stats.getSpecialDefense() * multiplier));
+                        stats.setSpeed((int) (stats.getSpeed() * multiplier));
+                        stats.setHP((int) (stats.getHP() * multiplier));
                     }
                 }
             }
