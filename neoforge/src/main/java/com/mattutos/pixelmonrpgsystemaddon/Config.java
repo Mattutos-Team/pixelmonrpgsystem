@@ -1,16 +1,10 @@
 package com.mattutos.pixelmonrpgsystemaddon;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
+
+import java.util.List;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
 // Demonstrates how to use Neo's config APIs
@@ -40,7 +34,7 @@ public class Config {
 
     public static final ModConfigSpec.IntValue MAX_PLAYER_LEVEL = BUILDER
             .comment("Nível máximo do jogador")
-            .defineInRange("maxPlayerLevel", 100, 1, 1000);
+            .defineInRange("maxPlayerLevel", 5, 1, 1000);
 
     public static final ModConfigSpec.BooleanValue ENABLE_CAPTURE_RESTRICTIONS = BUILDER
             .comment("Ativar restrições de captura baseadas no nível do jogador")
