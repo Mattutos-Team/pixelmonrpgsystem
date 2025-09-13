@@ -1,4 +1,4 @@
-package com.mattutos.pixelmonrpgsystemaddon.client;
+package com.mattutos.pixelmonrpgsystem.client;
 
 public class ClientPlayerRPGData {
     private static int experience = 0;

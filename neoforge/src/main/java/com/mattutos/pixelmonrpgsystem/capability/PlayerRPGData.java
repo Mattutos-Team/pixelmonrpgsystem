@@ -1,4 +1,4 @@
-package com.mattutos.pixelmonrpgsystemaddon.capability;
+package com.mattutos.pixelmonrpgsystem.capability;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

@@ -1,0 +1,13 @@
+{
+  "itemGroup.pixelmonrpgsystem": "Example Mod Tab",
+  "block.pixelmonrpgsystem.example_block": "Example Block",
+  "item.pixelmonrpgsystem.example_item": "Example Item",
+
+  "pixelmonrpgsystem.configuration.title": "PixelmonRPGSystemAddon Configs",
+  "pixelmonrpgsystem.configuration.section.pixelmonrpgsystem.common.toml": "PixelmonRPGSystemAddon Configs",
+  "pixelmonrpgsystem.configuration.section.pixelmonrpgsystem.common.toml.title": "PixelmonRPGSystemAddon Configs",
+  "pixelmonrpgsystem.configuration.items": "Item List",
+  "pixelmonrpgsystem.configuration.logDirtBlock": "Log Dirt Block",
+  "pixelmonrpgsystem.configuration.magicNumberIntroduction": "Magic Number Text",
+  "pixelmonrpgsystem.configuration.magicNumber": "Magic Number"
+}
