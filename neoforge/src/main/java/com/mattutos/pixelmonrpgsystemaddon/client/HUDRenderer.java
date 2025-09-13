@@ -30,7 +30,7 @@ public class HUDRenderer {
         String levelText = "Nível: " + level;
         String xpText = "XP: " + currentXP + "/" + totalXPForLevel;
 
-        int x = screenWidth - 150;
+        int x = 10;
         int y = 10;
 
         guiGraphics.fill(x - 5, y - 2, x + 140, y + 25, 0x80000000);
