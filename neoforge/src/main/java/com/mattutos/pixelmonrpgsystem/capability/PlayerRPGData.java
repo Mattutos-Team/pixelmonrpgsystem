@@ -1,12 +1,13 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
+import com.mattutos.pixelmonrpgsystem.Config;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     private int experience = 0;
-    private int level = 1;
+    private int level = 5;
 
     public void addExperience(int xp) {
         this.experience += xp;
@@ -14,9 +15,9 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     }
 
     private void updateLevel() {
-        int maxLevel = 100;
+        int maxLevel = Config.MAX_PLAYER_LEVEL.getAsInt();
         while (level < maxLevel) {
-            int requiredXP = level * level * 100;
+            int requiredXP = getTotalExperienceForThisLevel(level);
             if (experience >= requiredXP) {
                 level++;
             } else {
@@ -33,17 +34,26 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         return level;
     }
 
-    public int getExperienceForNextLevel() {
+    public void setLevel(int level) {
+        this.level = level;
+        this.experience = getTotalExperienceForThisLevel(level - 1);
+    }
+
+    private static int getTotalExperienceForThisLevel(int level) {
         return level * level * 100;
     }
 
+    public int getExperienceForNextLevel() {
+        return getTotalExperienceForThisLevel(level);
+    }
+
     public int getCurrentLevelExperience() {
-        int previousLevelXP = (level - 1) * (level - 1) * 100;
+        int previousLevelXP = getTotalExperienceForThisLevel(level - 1);
         return experience - previousLevelXP;
     }
 
     public int getExperienceNeededForNextLevel() {
-        int nextLevelXP = level * level * 100;
+        int nextLevelXP = this.getExperienceForNextLevel();
         return nextLevelXP - experience;
     }
 

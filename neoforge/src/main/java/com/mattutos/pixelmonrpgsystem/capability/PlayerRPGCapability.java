@@ -38,6 +38,11 @@ public class PlayerRPGCapability {
         return data.getExperienceNeededForNextLevel();
     }
 
+    public void setLevel(int level) {
+        data.setLevel(level);
+        saveToEntity(entity);
+    }
+
     public void saveToEntity(LivingEntity entity) {
         entity.setData(AttachmentsRegistry.PLAYER_RPG_DATA.get(), data);
     }

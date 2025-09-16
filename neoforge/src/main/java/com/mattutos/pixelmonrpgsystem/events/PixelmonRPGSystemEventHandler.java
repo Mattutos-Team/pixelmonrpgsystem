@@ -62,15 +62,22 @@ public class PixelmonRPGSystemEventHandler {
             if (data != null) {
                 int pokemonLevel = event.getPokemon().getPokemonLevel();
                 int playerLevel = data.getLevel();
+                boolean isMasterBall = event.getPokeBallEntity().getBallType().getName().equals("master_ball");
 
-                if (pokemonLevel > playerLevel) {
+                if (!isMasterBall && pokemonLevel > playerLevel) {
+                    int catchRate = event.getCaptureValues().getCatchRate();
+                    int debufCacthRate = (int) (catchRate * 0.01);
+//                    debufCacthRate = catchRate - (pokemonLevel - playerLevel) * debufCacthRate;
+                    System.out.println("Catch Rate Original: " + catchRate + " | Debuf: " + debufCacthRate + " | Nível do Pokémon: " + pokemonLevel + " | Nível do Jogador: " + playerLevel);
+
+                    String msgProbability = debufCacthRate == 0 ? "IMPOSSIVEL" : "mais difícil";
+
                     // REDUCE THE PROBABILITY OF CAPTURING THE POKEMON
                     player.sendSystemMessage(Component.literal(
-                            "§cEste pokémon é de nível " + pokemonLevel + ", mas você é nível " + playerLevel + ". A captura será mais difícil!"
+                            "§cEste pokémon é de nível " + pokemonLevel + ", mas você é nível " + playerLevel + ". A captura será " + msgProbability + "!"
                     ));
 
-                    int catchRate = event.getCaptureValues().getCatchRate();
-                    event.getCaptureValues().setCatchRate((int) (catchRate * 0.01));
+                    event.getCaptureValues().setCatchRate(debufCacthRate);
                 }
             }
         }
@@ -78,24 +85,11 @@ public class PixelmonRPGSystemEventHandler {
 
     @SubscribeEvent
     public void onBattleEnd(BattleEndEvent event) {
-        if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
-            event.getPlayers().forEach(player -> {
-                PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
-                if (data != null) {
-                    int playerLevel = data.getLevel();
-
-                    player.sendSystemMessage(Component.literal(
-                            "§eBatalha finalizada! Seu nível atual: " + playerLevel
-                    ));
-                }
-            });
-        }
-
         restoreLevelsAfterBattle(event);
     }
 
     @SubscribeEvent
-    public void onBattleStart(BattleStartedEvent.Post event) {
+    public void onBattleStart(BattleStartedEvent.Pre event) {
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
 
@@ -105,7 +99,15 @@ public class PixelmonRPGSystemEventHandler {
         }
     }
 
-    private void recalculateStatsBasedOnPlayerLevel(com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant[] team) {
+    @SubscribeEvent
+    public void onBattleStart(BattleStartedEvent.Post event) {
+        if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
+            decreaseTheLevelWhenBattleStarts(event.getTeamOne());
+            decreaseTheLevelWhenBattleStarts(event.getTeamTwo());
+        }
+    }
+
+    private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
         for (var participant : team) {
             if (participant instanceof PlayerParticipant playerPart) {
                 ServerPlayer player = (ServerPlayer) playerPart.getEntity();
@@ -161,10 +163,8 @@ public class PixelmonRPGSystemEventHandler {
 
                     pokemon.markDirty(com.pixelmonmod.pixelmon.comm.EnumUpdateType.Stats);
 
-                    if (player != null) {
-                        PlayerPartyStorage party = StorageProxy.getPartyNow(player);
-                        if (party != null) party.sendCacheToPlayer(player);
-                    }
+                    PlayerPartyStorage party = StorageProxy.getPartyNow(player);
+                    if (party != null) party.sendCacheToPlayer(player);
 
                     BattleController bc = pokemon.getBattleController();
                     if (bc != null) {

@@ -34,7 +34,7 @@ public class Config {
 
     public static final ModConfigSpec.IntValue MAX_PLAYER_LEVEL = BUILDER
             .comment("Nível máximo do jogador")
-            .defineInRange("maxPlayerLevel", 5, 1, 1000);
+            .defineInRange("maxPlayerLevel", 200, 1, 1000);
 
     public static final ModConfigSpec.BooleanValue ENABLE_CAPTURE_RESTRICTIONS = BUILDER
             .comment("Ativar restrições de captura baseadas no nível do jogador")

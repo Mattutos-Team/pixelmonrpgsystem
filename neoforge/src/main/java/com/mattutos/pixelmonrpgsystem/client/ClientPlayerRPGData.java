@@ -2,7 +2,7 @@ package com.mattutos.pixelmonrpgsystem.client;
 
 public class ClientPlayerRPGData {
     private static int experience = 0;
-    private static int level = 1;
+    private static int level = 5;
     
     public static void setPlayerData(int exp, int lvl) {
         experience = exp;
