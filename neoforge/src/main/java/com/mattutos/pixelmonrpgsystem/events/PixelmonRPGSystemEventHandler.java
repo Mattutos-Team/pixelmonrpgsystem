@@ -55,6 +55,25 @@ public class PixelmonRPGSystemEventHandler {
     }
 
     @SubscribeEvent
+    public  void onSuccessCapture(CaptureEvent.SuccessfulCapture event){
+        if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
+            Player player = event.getPlayer();
+            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
+
+            int pokemonLevel = event.getPokemon().getPokemonLevel();
+            int playerLevel = data.getLevel();
+
+            if(pokemonLevel > playerLevel) {
+                // SET THE POKEMON LEVEL TO THE PLAYER LEVEL
+                player.sendSystemMessage(Component.literal(
+                        "§eVocê capturou um pokémon de nível " + pokemonLevel + ", mas seu nível é " + playerLevel + ". O nível do pokémon foi ajustado para o seu nível."
+                ));
+                event.getPokemon().setLevel(playerLevel);
+            }
+        }
+    }
+
+    @SubscribeEvent
     public void onPokemonCapture(CaptureEvent.StartCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             Player player = event.getPlayer();
