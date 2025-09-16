@@ -1,5 +1,6 @@
 package com.mattutos.pixelmonrpgsystem;
 
+import com.mattutos.pixelmonrpgsystem.commands.RPGSystemCommand;
 import com.mattutos.pixelmonrpgsystem.events.PixelmonRPGSystemEventHandler;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystem.registry.AttachmentsRegistry;
@@ -28,6 +29,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -95,6 +97,7 @@ public final class PixelmonRPGSystem {
         // Note that this is necessary if and only if we want *this* class (pixelmonrpgsystem) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 
         // Register Pixelmon event handler
         Pixelmon.EVENT_BUS.register(new PixelmonRPGSystemEventHandler());
@@ -108,6 +111,10 @@ public final class PixelmonRPGSystem {
 
     public static ResourceLocation prefix(String path) {
         return ResourceLocation.fromNamespaceAndPath(PixelmonRPGSystem.MODID, path);
+    }
+
+    private void onRegisterCommands(RegisterCommandsEvent event) {
+        RPGSystemCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
