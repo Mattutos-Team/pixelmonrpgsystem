@@ -1,22 +1,16 @@
 package com.mattutos.pixelmonrpgsystem.events;
 
 import com.mattutos.pixelmonrpgsystem.Config;
-import com.mattutos.pixelmonrpgsystem.cache.BattleLevelCache;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
-import com.pixelmonmod.pixelmon.api.events.battles.BattleEndEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
-import com.pixelmonmod.pixelmon.api.storage.PlayerPartyStorage;
-import com.pixelmonmod.pixelmon.api.storage.StorageProxy;
-import com.pixelmonmod.pixelmon.battles.controller.BattleController;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
-import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,17 +19,18 @@ import net.neoforged.bus.api.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
-
 public class PixelmonRPGSystemEventHandler {
 
     private static final Logger log = LoggerFactory.getLogger(PixelmonRPGSystemEventHandler.class);
 
+    private static void notifyPlayerLevelUp(ServerPlayer serverPlayer, int newLevel) {
+        serverPlayer.sendSystemMessage(Component.literal("§6Parabéns! Você subiu para o nível " + newLevel + "!"));
+    }
+
     @SubscribeEvent
     public void onPokemonGainExperience(ExperienceGainEvent event) {
-        if (event.pokemon.getOwnerPlayer() != null) {
-            Player player = event.pokemon.getOwnerPlayer();
-            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
+        if (event.pokemon.getOwnerPlayer() instanceof ServerPlayer serverPlayer) {
+            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(serverPlayer);
             if (data != null) {
                 double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
                 int playerXP = Math.max(1, (int) (event.getExperience() * multiplier));
@@ -43,12 +38,10 @@ public class PixelmonRPGSystemEventHandler {
                 data.addExperience(playerXP);
                 int newLevel = data.getLevel();
 
-                if (player instanceof ServerPlayer serverPlayer) {
-                    NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), serverPlayer);
+                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), serverPlayer);
 
-                    if (newLevel > oldLevel) {
-                        player.sendSystemMessage(Component.literal("§6Parabéns! Você subiu para o nível " + newLevel + "!"));
-                    }
+                if (newLevel > oldLevel) {
+                    notifyPlayerLevelUp(serverPlayer, newLevel);
                 }
             }
         }
@@ -57,22 +50,50 @@ public class PixelmonRPGSystemEventHandler {
     //TODO IMPLEMENTAR LOGICA DE LIMITAR LEVEL DO POKEMON PARA TRADE E GIFT
 
     @SubscribeEvent
-    public  void onSuccessCapture(CaptureEvent.SuccessfulCapture event){
+    public void onSuccessCapture(CaptureEvent.SuccessfulCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
-            Player player = event.getPlayer();
+
+            ServerPlayer player = event.getPlayer();
             PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
 
             int pokemonLevel = event.getPokemon().getPokemonLevel();
-            int playerLevel = data.getLevel();
+            int oldPlayerLevel = data.getLevel();
 
-            if(pokemonLevel > playerLevel) {
+            gainXpFromCapturedPokemon(player, event.getPokemon(), data);
+
+            int newPlayerLevel = data.getLevel();
+
+            if (newPlayerLevel > oldPlayerLevel) notifyPlayerLevelUp(player, newPlayerLevel);
+
+            if (pokemonLevel > newPlayerLevel) {
                 // SET THE POKEMON LEVEL TO THE PLAYER LEVEL
                 player.sendSystemMessage(Component.literal(
-                        "§eVocê capturou um pokémon de nível " + pokemonLevel + ", mas seu nível é " + playerLevel + ". O nível do pokémon foi ajustado para o seu nível."
+                        "§eVocê capturou um pokémon de nível " + pokemonLevel + ", mas seu nível é " + newPlayerLevel + ". O nível do pokémon foi ajustado para o seu nível."
                 ));
-                event.getPokemon().setLevel(playerLevel);
+                event.getPokemon().setLevel(newPlayerLevel);
             }
         }
+    }
+
+    private void gainXpFromCapturedPokemon(ServerPlayer player, Pokemon pokemon, PlayerRPGCapability data) {
+        int level = pokemon.getPokemonLevel();
+        int catchRate = pokemon.getSpecies().getDefaultForm().getCatchRate();
+
+        // Fatores
+        int base = 5;
+        double rarityFactor = Math.min(10.0, 255.0 / catchRate); // cap no fator máximo
+
+        // XP calculado
+        int xpGain = (int) Math.round(level * base * rarityFactor);
+
+        // Adiciona XP no sistema RPG
+        data.addExperience(xpGain);
+
+        NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), player);
+
+        player.sendSystemMessage(Component.literal(
+                "Você ganhou " + xpGain + " XP por capturar " + pokemon.getTranslatedName() + " (Nível " + level + ")!")
+        );
     }
 
     @SubscribeEvent
@@ -103,13 +124,12 @@ public class PixelmonRPGSystemEventHandler {
             }
         }
     }
-    
+
     @SubscribeEvent
     public void onBattleStart(BattleStartedEvent.Pre event) {
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
     }
-
 
     private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
         for (var participant : team) {
