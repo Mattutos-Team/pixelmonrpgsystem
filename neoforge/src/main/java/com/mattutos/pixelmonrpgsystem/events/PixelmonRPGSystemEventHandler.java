@@ -54,6 +54,8 @@ public class PixelmonRPGSystemEventHandler {
         }
     }
 
+    //TODO IMPLEMENTAR LOGICA DE LIMITAR LEVEL DO POKEMON PARA TRADE E GIFT
+
     @SubscribeEvent
     public  void onSuccessCapture(CaptureEvent.SuccessfulCapture event){
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
@@ -101,30 +103,13 @@ public class PixelmonRPGSystemEventHandler {
             }
         }
     }
-
-    @SubscribeEvent
-    public void onBattleEnd(BattleEndEvent event) {
-        restoreLevelsAfterBattle(event);
-    }
-
+    
     @SubscribeEvent
     public void onBattleStart(BattleStartedEvent.Pre event) {
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
-
-        if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
-            decreaseTheLevelWhenBattleStarts(event.getTeamOne());
-            decreaseTheLevelWhenBattleStarts(event.getTeamTwo());
-        }
     }
 
-    @SubscribeEvent
-    public void onBattleStart(BattleStartedEvent.Post event) {
-        if (Config.ENABLE_BATTLE_RESTRICTIONS.get()) {
-            decreaseTheLevelWhenBattleStarts(event.getTeamOne());
-            decreaseTheLevelWhenBattleStarts(event.getTeamTwo());
-        }
-    }
 
     private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
         for (var participant : team) {
@@ -148,89 +133,6 @@ public class PixelmonRPGSystemEventHandler {
                         stats.setSpecialDefense((int) (stats.getSpecialDefense() * multiplier));
                         stats.setSpeed((int) (stats.getSpeed() * multiplier));
                         stats.setHP((int) (stats.getHP() * multiplier));
-                    }
-                }
-            }
-        }
-    }
-
-    private void decreaseTheLevelWhenBattleStarts(BattleParticipant[] team) {
-        for (BattleParticipant part : team) {
-            if (!(part instanceof PlayerParticipant playerPart)) continue;
-
-            ServerPlayer player = (ServerPlayer) playerPart.getEntity();
-            PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
-            if (rpg == null) continue;
-            int playerLevel = rpg.getLevel();
-
-            for (Pokemon pokemon : playerPart.getStorage().getTeam()) {
-                if (pokemon == null) continue;
-
-                int pokeLevel = pokemon.getPokemonLevel();
-                if (pokeLevel > playerLevel) {
-                    UUID id = pokemon.getUUID();
-
-                    BattleLevelCache.originalLevels.put(id, pokeLevel);
-                    BattleLevelCache.originalExperiences.put(id, pokemon.getExperience());
-                    BattleLevelCache.originalDoesLevel.put(id, pokemon.doesLevel());
-
-                    pokemon.setLevel(playerLevel);
-                    pokemon.getStats().recalculateStats();
-
-                    log.info("ATTACK: " + pokemon.getStats().getAttack() + " Meu nome é " + pokemon.getDisplayName());
-                    log.info("HP: " + pokemon.getStats().getHP() + " Meu nome é " + pokemon.getDisplayName());
-
-                    pokemon.markDirty(com.pixelmonmod.pixelmon.comm.EnumUpdateType.Stats);
-
-                    PlayerPartyStorage party = StorageProxy.getPartyNow(player);
-                    if (party != null) party.sendCacheToPlayer(player);
-
-                    BattleController bc = pokemon.getBattleController();
-                    if (bc != null) {
-                        PixelmonWrapper pw = bc.getPokemonFromUUID(id);
-                        if (pw != null) {
-                            bc.modifyStats(pw);
-                            bc.updateFormChange(pw);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void restoreLevelsAfterBattle(BattleEndEvent event) {
-        BattleController bc = event.getBattleController();
-        for (Player p : event.getPlayers()) {
-            if (!(p instanceof ServerPlayer serverPlayer)) continue;
-
-            PlayerPartyStorage party = StorageProxy.getPartyNow(serverPlayer);
-            if (party == null) continue;
-
-            for (Pokemon pokemon : party.getTeam()) {
-                if (pokemon == null) continue;
-                UUID id = pokemon.getUUID();
-
-                Integer oldLevel = BattleLevelCache.originalLevels.remove(id);
-                if (oldLevel == null) continue;
-
-                Integer oldExp = BattleLevelCache.originalExperiences.remove(id);
-                Boolean oldDoesLevel = BattleLevelCache.originalDoesLevel.remove(id);
-
-                pokemon.setLevel(oldLevel);
-                if (oldExp != null) pokemon.setExperience(oldExp);
-                if (oldDoesLevel != null) pokemon.setDoesLevel(oldDoesLevel);
-
-                pokemon.getStats().recalculateStats();
-                pokemon.markDirty(com.pixelmonmod.pixelmon.comm.EnumUpdateType.Stats,
-                        com.pixelmonmod.pixelmon.comm.EnumUpdateType.Experience);
-
-                party.sendCacheToPlayer(serverPlayer);
-
-                if (bc != null) {
-                    PixelmonWrapper pw = bc.getPokemonFromUUID(id);
-                    if (pw != null) {
-                        bc.modifyStats(pw);
-                        bc.updateFormChange(pw);
                     }
                 }
             }
