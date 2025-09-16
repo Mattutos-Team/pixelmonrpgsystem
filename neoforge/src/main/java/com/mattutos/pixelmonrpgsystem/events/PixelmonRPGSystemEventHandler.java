@@ -35,6 +35,18 @@ public class PixelmonRPGSystemEventHandler {
     public void onPokemonGainExperience(ExperienceGainEvent event) {
         if (event.pokemon.getOwnerPlayer() != null) {
             Player player = event.pokemon.getOwnerPlayer();
+            
+            UUID pokemonId = event.pokemon.getUUID();
+            if (BattleLevelCache.originalLevels.containsKey(pokemonId)) {
+                event.setCanceled(true);
+                if (player instanceof ServerPlayer serverPlayer) {
+                    player.sendSystemMessage(Component.literal(
+                        "§e" + event.pokemon.getDisplayName() + " não ganhou experiência porque estava limitado pelo seu nível de jogador durante a batalha."
+                    ));
+                }
+                return;
+            }
+            
             PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
             if (data != null) {
                 double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
