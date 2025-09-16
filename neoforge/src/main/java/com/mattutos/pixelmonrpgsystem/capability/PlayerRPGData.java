@@ -6,8 +6,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag> {
-    private int experience = 0;
     private int level = 5;
+    private int experience = PlayerRPGData.getTotalExperienceForThisLevel(level);
+
+    public static int getTotalExperienceForThisLevel(int level) {
+        return (level * level * 100) + 100;
+    }
 
     public void addExperience(int xp) {
         this.experience += xp;
@@ -37,10 +41,6 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     public void setLevel(int level) {
         this.level = level;
         this.experience = getTotalExperienceForThisLevel(level - 1);
-    }
-
-    private static int getTotalExperienceForThisLevel(int level) {
-        return level * level * 100;
     }
 
     public int getExperienceForNextLevel() {
