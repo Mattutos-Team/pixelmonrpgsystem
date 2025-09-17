@@ -1,7 +1,6 @@
 package com.mattutos.pixelmonrpgsystem.client;
 
 import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
-import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.neoforged.api.distmarker.Dist;
@@ -16,16 +15,14 @@ public class HUDRenderer {
     public static void onScreenRender(RenderGuiEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null && mc.level != null && mc.screen == null) {
-            Window window = mc.getWindow();
-            renderPlayerLevel(event.getGuiGraphics(), window.getGuiScaledWidth(), window.getGuiScaledHeight());
+            renderPlayerLevel(event.getGuiGraphics());
         }
     }
 
-    private static void renderPlayerLevel(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    private static void renderPlayerLevel(GuiGraphics guiGraphics) {
         int level = ClientPlayerRPGData.getLevel();
         int currentXP = ClientPlayerRPGData.getCurrentLevelExperience();
-        int neededXP = ClientPlayerRPGData.getExperienceNeededForNextLevel();
-        int totalXPForLevel = ClientPlayerRPGData.getExperienceForNextLevel() - ((level - 1) * (level - 1) * 100);
+        int totalXPForLevel = ClientPlayerRPGData.getExperienceForNextLevel();
 
         String levelText = "Nível: " + level;
         String xpText = "XP: " + currentXP + "/" + totalXPForLevel;

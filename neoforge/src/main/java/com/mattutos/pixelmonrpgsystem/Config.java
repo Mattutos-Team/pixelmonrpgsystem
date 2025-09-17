@@ -29,19 +29,20 @@ public class Config {
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", Config::validateItemName);
 
     public static final ModConfigSpec.DoubleValue PLAYER_XP_MULTIPLIER = BUILDER
-            .comment("Multiplicador de XP que o jogador recebe das batalhas")
-            .defineInRange("playerXpMultiplier", 0.1, 0.01, 1.0);
+            // comentario em ingles explicando para que serve a config
+            .comment("XP multiplier gained per Pokémon based on the player's level")
+            .defineInRange("playerXpMultiplier", 0.5, 0.01, 10.0);
 
     public static final ModConfigSpec.IntValue MAX_PLAYER_LEVEL = BUILDER
-            .comment("Nível máximo do jogador")
+            .comment("Maximum player level")
             .defineInRange("maxPlayerLevel", 200, 1, 1000);
 
     public static final ModConfigSpec.BooleanValue ENABLE_CAPTURE_RESTRICTIONS = BUILDER
-            .comment("Ativar restrições de captura baseadas no nível do jogador")
+            .comment("Enable capture restrictions based on the player's level")
             .define("enableCaptureRestrictions", true);
 
     public static final ModConfigSpec.BooleanValue ENABLE_BATTLE_RESTRICTIONS = BUILDER
-            .comment("Ativar avisos de uso de Pokémon acima do nível do jogador")
+            .comment("Enable warnings when using Pokémon above the player's level")
             .define("enableBattleRestrictions", true);
 
     static final ModConfigSpec SPEC = BUILDER.build();

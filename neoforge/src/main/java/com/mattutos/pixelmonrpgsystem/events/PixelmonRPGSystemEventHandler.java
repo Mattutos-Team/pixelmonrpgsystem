@@ -12,6 +12,7 @@ import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -21,10 +22,9 @@ import org.slf4j.LoggerFactory;
 
 public class PixelmonRPGSystemEventHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(PixelmonRPGSystemEventHandler.class);
-
     private static void notifyPlayerLevelUp(ServerPlayer serverPlayer, int newLevel) {
-        serverPlayer.sendSystemMessage(Component.literal("§6Parabéns! Você subiu para o nível " + newLevel + "!"));
+        serverPlayer.sendSystemMessage(Component.translatable("pixelmonrpgsystem.message.levelup", newLevel)
+        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
     }
 
     @SubscribeEvent
@@ -57,19 +57,16 @@ public class PixelmonRPGSystemEventHandler {
             PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
 
             int pokemonLevel = event.getPokemon().getPokemonLevel();
-            int oldPlayerLevel = data.getLevel();
 
             gainXpFromCapturedPokemon(player, event.getPokemon(), data);
 
             int newPlayerLevel = data.getLevel();
 
-            if (newPlayerLevel > oldPlayerLevel) notifyPlayerLevelUp(player, newPlayerLevel);
-
             if (pokemonLevel > newPlayerLevel) {
                 // SET THE POKEMON LEVEL TO THE PLAYER LEVEL
-                player.sendSystemMessage(Component.literal(
-                        "§eVocê capturou um pokémon de nível " + pokemonLevel + ", mas seu nível é " + newPlayerLevel + ". O nível do pokémon foi ajustado para o seu nível."
-                ));
+                player.sendSystemMessage(Component.translatable(
+                    "pixelmonrpgsystem.message.capture.level.adjusted", pokemonLevel, newPlayerLevel
+                ).withStyle(ChatFormatting.GOLD));
                 event.getPokemon().setLevel(newPlayerLevel);
             }
         }
@@ -78,22 +75,28 @@ public class PixelmonRPGSystemEventHandler {
     private void gainXpFromCapturedPokemon(ServerPlayer player, Pokemon pokemon, PlayerRPGCapability data) {
         int level = pokemon.getPokemonLevel();
         int catchRate = pokemon.getSpecies().getDefaultForm().getCatchRate();
+        int oldPlayerLevel = data.getLevel();
 
-        // Fatores
+        // Base XP value
         int base = 5;
-        double rarityFactor = Math.min(10.0, 255.0 / catchRate); // cap no fator máximo
-
-        // XP calculado
+        // Rarity factor, capped at a maximum value
+        double rarityFactor = Math.min(10.0, 255.0 / catchRate);
+        // Calculated XP gain
         int xpGain = (int) Math.round(level * base * rarityFactor);
 
-        // Adiciona XP no sistema RPG
+        // Adds XP to the Player RPG system
         data.addExperience(xpGain);
+
+        // New player level after gaining XP
+        int newPlayerLevel = data.getLevel();
 
         NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), player);
 
-        player.sendSystemMessage(Component.literal(
-                "Você ganhou " + xpGain + " XP por capturar " + pokemon.getTranslatedName() + " (Nível " + level + ")!")
-        );
+        player.sendSystemMessage(Component.translatable(
+                "pixelmonrpgsystem.message.capture.xp", xpGain, pokemon.getSpecies().getName(), level
+        ));
+
+        if (newPlayerLevel > oldPlayerLevel) notifyPlayerLevelUp(player, newPlayerLevel);
     }
 
     @SubscribeEvent
@@ -109,15 +112,19 @@ public class PixelmonRPGSystemEventHandler {
                 if (!isMasterBall && pokemonLevel > playerLevel) {
                     int catchRate = event.getCaptureValues().getCatchRate();
                     int debufCacthRate = (int) (catchRate * 0.01);
-//                    debufCacthRate = catchRate - (pokemonLevel - playerLevel) * debufCacthRate;
-                    System.out.println("Catch Rate Original: " + catchRate + " | Debuf: " + debufCacthRate + " | Nível do Pokémon: " + pokemonLevel + " | Nível do Jogador: " + playerLevel);
-
-                    String msgProbability = debufCacthRate == 0 ? "IMPOSSIVEL" : "mais difícil";
 
                     // REDUCE THE PROBABILITY OF CAPTURING THE POKEMON
-                    player.sendSystemMessage(Component.literal(
-                            "§cEste pokémon é de nível " + pokemonLevel + ", mas você é nível " + playerLevel + ". A captura será " + msgProbability + "!"
-                    ));
+                    if (debufCacthRate == 0) {
+                        player.sendSystemMessage(
+                                Component.translatable("pixelmonrpgsystem.message.capture.impossible", pokemonLevel, playerLevel)
+                                        .withStyle(ChatFormatting.RED)
+                        );
+                    } else {
+                        player.sendSystemMessage(
+                                Component.translatable("pixelmonrpgsystem.message.capture.harder", pokemonLevel, playerLevel)
+                                        .withStyle(ChatFormatting.GOLD)
+                        );
+                    }
 
                     event.getCaptureValues().setCatchRate(debufCacthRate);
                 }

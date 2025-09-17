@@ -2,7 +2,9 @@
   "required": true,
   "package": "com.mattutos.pixelmonrpgsystem.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "PokemonLevelMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

@@ -4,7 +4,7 @@ import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGData;
 
 public class ClientPlayerRPGData {
     private static int level = 5;
-    private static int experience = PlayerRPGData.getTotalExperienceForThisLevel(level);
+    private static int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
 
     public static void setPlayerData(int exp, int lvl) {
         experience = exp;
@@ -20,16 +20,15 @@ public class ClientPlayerRPGData {
     }
 
     public static int getExperienceForNextLevel() {
-        return PlayerRPGData.getTotalExperienceForThisLevel(level);
+        return PlayerRPGData.getExperienceForThisLevel(level + 1);
     }
 
     public static int getCurrentLevelExperience() {
-        int previousLevelXP = PlayerRPGData.getTotalExperienceForThisLevel(level - 1);
+        int previousLevelXP = PlayerRPGData.getTotalExperienceToThisLevel(level);
         return experience - previousLevelXP;
     }
 
     public static int getExperienceNeededForNextLevel() {
-        int nextLevelXP = PlayerRPGData.getTotalExperienceForThisLevel(level);
-        return nextLevelXP - experience;
+        return getExperienceForNextLevel() - getCurrentLevelExperience();
     }
 }
