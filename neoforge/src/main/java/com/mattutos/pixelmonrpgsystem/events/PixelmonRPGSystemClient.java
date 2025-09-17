@@ -2,10 +2,12 @@ package com.mattutos.pixelmonrpgsystem.events;
 
 import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.dailyreward.DailyRewardButton;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -18,8 +20,6 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import com.mattutos.pixelmonrpgsystem.dailyreward.DailyRewardButton;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = PixelmonRPGSystem.MODID, dist = Dist.CLIENT)
@@ -54,9 +54,16 @@ public class PixelmonRPGSystemClient {
     @SubscribeEvent
     static void onScreenInit(ScreenEvent.Init.Post event) {
         if (event.getScreen() instanceof InventoryScreen inventoryScreen) {
-            int buttonX = inventoryScreen.getGuiLeft() + inventoryScreen.getXSize() + 5;
-            int buttonY = inventoryScreen.getGuiTop() + 20;
-            
+            Minecraft mc = Minecraft.getInstance();
+            int screenWidth = mc.getWindow().getGuiScaledWidth();
+            int buttonWidth = 20;
+
+            // screen horizontal centered
+            int buttonX = (screenWidth / 2) - (buttonWidth / 2);
+
+            // margin from top
+            int buttonY = 10;
+
             DailyRewardButton dailyRewardButton = new DailyRewardButton(buttonX, buttonY);
             event.addListener(dailyRewardButton);
         }

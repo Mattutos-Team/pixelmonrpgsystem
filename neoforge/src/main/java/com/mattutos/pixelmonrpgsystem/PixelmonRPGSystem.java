@@ -1,5 +1,6 @@
 package com.mattutos.pixelmonrpgsystem;
 
+import com.mattutos.pixelmonrpgsystem.commands.ItemNbtCommand;
 import com.mattutos.pixelmonrpgsystem.commands.RPGSystemCommand;
 import com.mattutos.pixelmonrpgsystem.events.PixelmonRPGSystemEventHandler;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
@@ -115,6 +116,7 @@ public final class PixelmonRPGSystem {
 
     private void onRegisterCommands(RegisterCommandsEvent event) {
         RPGSystemCommand.register(event.getDispatcher());
+        ItemNbtCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

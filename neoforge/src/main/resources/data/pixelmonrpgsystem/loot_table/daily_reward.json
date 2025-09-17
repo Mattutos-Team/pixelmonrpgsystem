@@ -2,88 +2,166 @@
   "type": "minecraft:chest",
   "pools": [
     {
-      "name": "fixed_rewards",
+      "name": "pokeball_common_ball",
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "item",
           "name": "pixelmon:poke_ball",
           "functions": [
             {
               "function": "minecraft:set_count",
               "count": 10
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item", 
-          "name": "pixelmon:great_ball",
-          "functions": [
+            },
             {
-              "function": "minecraft:set_count",
-              "count": 5
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "pixelmon:ultra_ball", 
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 2
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "poke_ball"
+              }
             }
           ]
         }
       ]
     },
     {
-      "name": "random_rewards",
-      "rolls": {
-        "type": "minecraft:uniform",
-        "min": 1,
-        "max": 3
-      },
+      "name": "pokeball_great_ball",
+      "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "pixelmon:rare_candy",
-          "weight": 70,
+          "type": "item",
+          "name": "pixelmon:poke_ball",
           "functions": [
             {
               "function": "minecraft:set_count",
-              "count": {
-                "type": "minecraft:uniform",
-                "min": 1,
-                "max": 3
+              "count": 5
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "great_ball"
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "pokeball_ultra_ball",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 2
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "ultra_ball"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rare_candy",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "pixelmon:rare_candy",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 2
+              }
+            }
+          ],
+          "weight": 2
         },
         {
-          "type": "minecraft:item",
-          "name": "pixelmon:luxury_ball",
-          "weight": 20
+          "type": "empty",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "random_extra",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "luxury_ball"
+              }
+            }
+          ],
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "pixelmon:safari_ball", 
-          "weight": 15
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "safari_ball"
+              }
+            }
+          ],
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "name": "pixelmon:potion",
-          "weight": 30
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 2,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "name": "pixelmon:super_potion",
-          "weight": 20
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 2
+              }
+            }
+          ],
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "name": "pixelmon:revive",
-          "weight": 25
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 2
+              }
+            }
+          ],
+          "weight": 1
         }
       ]
     }
