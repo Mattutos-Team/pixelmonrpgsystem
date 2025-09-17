@@ -43,6 +43,19 @@ public class PlayerRPGCapability {
         saveToEntity(entity);
     }
 
+    public boolean canClaimDailyReward() {
+        return data.canClaimDailyReward();
+    }
+
+    public void claimDailyReward() {
+        data.claimDailyReward();
+        saveToEntity(entity);
+    }
+
+    public long getLastDailyReward() {
+        return data.getLastDailyReward();
+    }
+
     public void saveToEntity(LivingEntity entity) {
         entity.setData(AttachmentsRegistry.PLAYER_RPG_DATA.get(), data);
     }

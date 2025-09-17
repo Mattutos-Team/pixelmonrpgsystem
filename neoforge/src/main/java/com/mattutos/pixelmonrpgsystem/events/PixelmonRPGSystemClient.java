@@ -2,10 +2,12 @@ package com.mattutos.pixelmonrpgsystem.events;
 
 import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.dailyreward.DailyRewardButton;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -14,6 +16,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -43,8 +46,26 @@ public class PixelmonRPGSystemClient {
         if (player instanceof ServerPlayer serverPlayer) {
             PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(event.getEntity());
             if (data != null) {
-                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), serverPlayer);
+                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), serverPlayer);
             }
+        }
+    }
+
+    @SubscribeEvent
+    static void onScreenInit(ScreenEvent.Init.Post event) {
+        if (event.getScreen() instanceof InventoryScreen inventoryScreen) {
+            Minecraft mc = Minecraft.getInstance();
+            int screenWidth = mc.getWindow().getGuiScaledWidth();
+            int buttonWidth = 20;
+
+            // screen horizontal centered
+            int buttonX = (screenWidth / 2) - (buttonWidth / 2);
+
+            // margin from top
+            int buttonY = 10;
+
+            DailyRewardButton dailyRewardButton = new DailyRewardButton(buttonX, buttonY);
+            event.addListener(dailyRewardButton);
         }
     }
 }

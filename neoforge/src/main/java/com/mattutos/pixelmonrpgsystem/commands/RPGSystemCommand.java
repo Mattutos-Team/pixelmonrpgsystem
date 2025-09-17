@@ -50,7 +50,7 @@ public class RPGSystemCommand {
                     playerTarget.sendSystemMessage(Component.literal("§6Seu nível foi alterado para " + level + "!"));
                     source.sendSuccess(() -> Component.literal("§aNível de " + playerTarget.getName().getString() + " alterado para " + level), true);
 
-                    NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), playerTarget);
+                    NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), playerTarget);
 
                     return 1;
                 });
