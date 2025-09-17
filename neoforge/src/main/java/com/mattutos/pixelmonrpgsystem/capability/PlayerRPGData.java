@@ -1,13 +1,29 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
 import com.mattutos.pixelmonrpgsystem.Config;
+import com.pixelmonmod.pixelmon.api.pokemon.ExperienceGroup;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag> {
-    private int experience = 0;
+    private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
     private int level = 5;
+    private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
+
+    public static int getExperienceForThisLevel(int level) {
+//        return (level * level * 100) + 100;
+        return experienceGroup.getExpForLevel(level);
+    }
+
+    public static int getTotalExperienceToThisLevel(int level) {
+//        return (level * level * 100) + 100;
+        return experienceGroup.getExpToLevel(level);
+    }
+
+    public int getTotalExperienceToTheNextLevel() {
+        return getTotalExperienceToThisLevel(level + 1);
+    }
 
     public void addExperience(int xp) {
         this.experience += xp;
@@ -17,7 +33,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     private void updateLevel() {
         int maxLevel = Config.MAX_PLAYER_LEVEL.getAsInt();
         while (level < maxLevel) {
-            int requiredXP = getTotalExperienceForThisLevel(level);
+            int requiredXP = getTotalExperienceToTheNextLevel();
             if (experience >= requiredXP) {
                 level++;
             } else {
@@ -36,19 +52,15 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
 
     public void setLevel(int level) {
         this.level = level;
-        this.experience = getTotalExperienceForThisLevel(level - 1);
-    }
-
-    private static int getTotalExperienceForThisLevel(int level) {
-        return level * level * 100;
+        this.experience = getTotalExperienceToThisLevel(level);
     }
 
     public int getExperienceForNextLevel() {
-        return getTotalExperienceForThisLevel(level);
+        return getExperienceForThisLevel(level);
     }
 
     public int getCurrentLevelExperience() {
-        int previousLevelXP = getTotalExperienceForThisLevel(level - 1);
+        int previousLevelXP = getTotalExperienceToThisLevel(level);
         return experience - previousLevelXP;
     }
 

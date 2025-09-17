@@ -1,0 +1,19 @@
+{
+  "itemGroup.pixelmonrpgsystem": "Exemplo de Aba de Mod",
+  "block.pixelmonrpgsystem.example_block": "Bloco de Exemplo",
+  "item.pixelmonrpgsystem.example_item": "Item de Exemplo",
+
+  "pixelmonrpgsystem.configuration.title": "Configs do PixelmonRPGSystem",
+  "pixelmonrpgsystem.configuration.section.pixelmonrpgsystem.common.toml": "Configs do PixelmonRPGSystem",
+  "pixelmonrpgsystem.configuration.section.pixelmonrpgsystem.common.toml.title": "Configs do PixelmonRPGSystem",
+  "pixelmonrpgsystem.configuration.items": "Lista de Itens",
+  "pixelmonrpgsystem.configuration.logDirtBlock": "Bloco de Terra com Tronco",
+  "pixelmonrpgsystem.configuration.magicNumberIntroduction": "Texto do Número Mágico",
+  "pixelmonrpgsystem.configuration.magicNumber": "Número Mágico",
+
+  "pixelmonrpgsystem.message.capture.level.adjusted": "Você capturou um Pokémon de nível %1$s, mas seu nível é %2$s. O nível do Pokémon foi ajustado para o seu nível.",
+  "pixelmonrpgsystem.message.capture.xp": "Você ganhou %1$s XP por capturar %2$s (Nível %3$s)!",
+  "pixelmonrpgsystem.message.levelup": "Parabéns! Você subiu para o nível %1$s!",
+  "pixelmonrpgsystem.message.capture.impossible": "Este Pokémon é de nível %1$s, mas você é de nível %2$s. A captura é IMPOSSÍVEL!",
+  "pixelmonrpgsystem.message.capture.harder": "Este Pokémon é de nível %1$s, mas você é de nível %2$s. A captura será mais difícil!"
+}
