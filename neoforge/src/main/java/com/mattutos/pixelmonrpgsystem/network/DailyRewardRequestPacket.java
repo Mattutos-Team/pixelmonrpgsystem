@@ -31,7 +31,7 @@ public record DailyRewardRequestPacket() implements CustomPacketPayload {
                 PlayerRPGCapability capability = CapabilitiesRegistry.getPlayerRPGCapability(serverPlayer);
 
                 if (capability != null && capability.canClaimDailyReward()) {
-//                    capability.claimDailyReward();
+                    capability.claimDailyReward();
 
                     List<ItemStack> rewards = DailyRewardManager.generateDailyRewards(serverPlayer);
 
