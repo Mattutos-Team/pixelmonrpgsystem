@@ -10,6 +10,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
+    private long lastDailyReward = 0;
 
     public static int getExperienceForThisLevel(int level) {
 //        return (level * level * 100) + 100;
@@ -74,6 +75,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         CompoundTag tag = new CompoundTag();
         tag.putInt("experience", experience);
         tag.putInt("level", level);
+        tag.putLong("lastDailyReward", lastDailyReward);
         return tag;
     }
 
@@ -81,6 +83,21 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         experience = tag.getInt("experience");
         level = tag.getInt("level");
+        lastDailyReward = tag.getLong("lastDailyReward");
     }
 
+    public boolean canClaimDailyReward() {
+        long currentTime = System.currentTimeMillis();
+        long currentDay = currentTime / (24 * 60 * 60 * 1000);
+        long lastRewardDay = lastDailyReward / (24 * 60 * 60 * 1000);
+        return currentDay > lastRewardDay;
+    }
+
+    public void claimDailyReward() {
+        this.lastDailyReward = System.currentTimeMillis();
+    }
+
+    public long getLastDailyReward() {
+        return lastDailyReward;
+    }
 }

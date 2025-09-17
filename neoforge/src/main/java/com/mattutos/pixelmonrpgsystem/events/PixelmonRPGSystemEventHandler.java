@@ -38,7 +38,7 @@ public class PixelmonRPGSystemEventHandler {
                 data.addExperience(playerXP);
                 int newLevel = data.getLevel();
 
-                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), serverPlayer);
+                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), serverPlayer);
 
                 if (newLevel > oldLevel) {
                     notifyPlayerLevelUp(serverPlayer, newLevel);
@@ -90,7 +90,7 @@ public class PixelmonRPGSystemEventHandler {
         // New player level after gaining XP
         int newPlayerLevel = data.getLevel();
 
-        NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), player);
+        NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), player);
 
         player.sendSystemMessage(Component.translatable(
                 "pixelmonrpgsystem.message.capture.xp", xpGain, pokemon.getSpecies().getName(), level

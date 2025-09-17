@@ -14,9 +14,12 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import com.mattutos.pixelmonrpgsystem.dailyreward.DailyRewardButton;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = PixelmonRPGSystem.MODID, dist = Dist.CLIENT)
@@ -43,8 +46,19 @@ public class PixelmonRPGSystemClient {
         if (player instanceof ServerPlayer serverPlayer) {
             PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(event.getEntity());
             if (data != null) {
-                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel()), serverPlayer);
+                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), serverPlayer);
             }
+        }
+    }
+
+    @SubscribeEvent
+    static void onScreenInit(ScreenEvent.Init.Post event) {
+        if (event.getScreen() instanceof InventoryScreen inventoryScreen) {
+            int buttonX = inventoryScreen.getGuiLeft() + inventoryScreen.getXSize() + 5;
+            int buttonY = inventoryScreen.getGuiTop() + 20;
+            
+            DailyRewardButton dailyRewardButton = new DailyRewardButton(buttonX, buttonY);
+            event.addListener(dailyRewardButton);
         }
     }
 }
