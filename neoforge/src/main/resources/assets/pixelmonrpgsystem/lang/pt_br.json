@@ -26,5 +26,11 @@
   "pixelmonrpgsystem.dailyreward.button.claimed": "🎁 Já Resgatado",
   "pixelmonrpgsystem.dailyreward.confirm": "Confirmar",
   "pixelmonrpgsystem.dailyreward.already_claimed": "Você já resgatou sua recompensa diária hoje.",
-  "pixelmonrpgsystem.dailyreward.claimed_success": "Recompensa diária resgatada com sucesso!"
+  "pixelmonrpgsystem.dailyreward.claimed_success": "Recompensa diária resgatada com sucesso!",
+  
+  "item.pixelmonrpgsystem.mastery_badge": "Ensignia de Maestria",
+  "pixelmonrpgsystem.mastery.novato": "Novato",
+  "pixelmonrpgsystem.mastery.aspirante": "Aspirante", 
+  "pixelmonrpgsystem.mastery.experiente": "Experiente",
+  "pixelmonrpgsystem.mastery.mestre": "Mestre"
 }

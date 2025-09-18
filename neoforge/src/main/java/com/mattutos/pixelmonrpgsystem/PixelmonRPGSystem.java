@@ -1,11 +1,13 @@
 package com.mattutos.pixelmonrpgsystem;
 
 import com.mattutos.pixelmonrpgsystem.commands.ItemNbtCommand;
+import com.mattutos.pixelmonrpgsystem.commands.MasteryCommand;
 import com.mattutos.pixelmonrpgsystem.commands.RPGSystemCommand;
 import com.mattutos.pixelmonrpgsystem.events.PixelmonRPGSystemEventHandler;
 import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
 import com.mattutos.pixelmonrpgsystem.registry.AttachmentsRegistry;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
+import com.mattutos.pixelmonrpgsystem.registry.ItemsRegistry;
 import com.mojang.logging.LogUtils;
 import com.pixelmonmod.pixelmon.Pixelmon;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -87,6 +89,9 @@ public final class PixelmonRPGSystem {
 
         // Register attachments
         AttachmentsRegistry.ATTACHMENTS.register(modEventBus);
+        
+        // Register items
+        ItemsRegistry.ITEMS.register(modEventBus);
 
         // Register capabilities
         modEventBus.addListener(CapabilitiesRegistry::registerCapabilities);
@@ -117,6 +122,7 @@ public final class PixelmonRPGSystem {
     private void onRegisterCommands(RegisterCommandsEvent event) {
         RPGSystemCommand.register(event.getDispatcher());
         ItemNbtCommand.register(event.getDispatcher());
+        MasteryCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

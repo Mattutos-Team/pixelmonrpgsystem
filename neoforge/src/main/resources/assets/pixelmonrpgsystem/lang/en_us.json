@@ -25,5 +25,11 @@
   "pixelmonrpgsystem.dailyreward.button.claimed": "🎁 Already Claimed",
   "pixelmonrpgsystem.dailyreward.confirm": "Confirm",
   "pixelmonrpgsystem.dailyreward.already_claimed": "You already claimed your daily reward today.",
-  "pixelmonrpgsystem.dailyreward.claimed_success": "Daily reward claimed successfully!"
+  "pixelmonrpgsystem.dailyreward.claimed_success": "Daily reward claimed successfully!",
+  
+  "item.pixelmonrpgsystem.mastery_badge": "Mastery Badge",
+  "pixelmonrpgsystem.mastery.novato": "Novice",
+  "pixelmonrpgsystem.mastery.aspirante": "Aspirant", 
+  "pixelmonrpgsystem.mastery.experiente": "Experienced",
+  "pixelmonrpgsystem.mastery.mestre": "Master"
 }

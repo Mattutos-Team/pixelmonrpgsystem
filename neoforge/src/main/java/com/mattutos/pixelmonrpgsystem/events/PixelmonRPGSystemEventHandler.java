@@ -4,6 +4,7 @@ import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.experience.ExperienceSource;
 import com.mattutos.pixelmonrpgsystem.experience.RPGExperienceManager;
+import com.mattutos.pixelmonrpgsystem.mastery.MasteryManager;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
@@ -30,6 +31,10 @@ public class PixelmonRPGSystemEventHandler {
             RPGExperienceManager.addExperience(serverPlayer, playerXP, ExperienceSource.POKEMON_BATTLE);
 
             limitXpGainedFromPokemonByPlayerLevel(event);
+            
+            if (event.getExperience() > 0) {
+                MasteryManager.addBattleVictoryXp(serverPlayer, event.pokemon);
+            }
         }
     }
 
@@ -68,6 +73,7 @@ public class PixelmonRPGSystemEventHandler {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             ServerPlayer player = event.getPlayer();
             gainXpFromCapturedPokemon(player, event.getPokemon());
+            MasteryManager.addCaptureXp(player, event.getPokemon());
         }
     }
 
@@ -114,6 +120,13 @@ public class PixelmonRPGSystemEventHandler {
                     }
 
                     event.getCaptureValues().setCatchRate(debufCacthRate);
+                } else {
+                    double masteryBonus = MasteryManager.getMasteryBonus((ServerPlayer) player, event.getPokemon());
+                    if (masteryBonus > 0) {
+                        int catchRate = event.getCaptureValues().getCatchRate();
+                        int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
+                        event.getCaptureValues().setCatchRate(bonusCatchRate);
+                    }
                 }
             }
         }
@@ -165,12 +178,15 @@ public class PixelmonRPGSystemEventHandler {
                         if (pokemon == null) continue;
                         PermanentStats stats = pokemon.getStats();
 
-                        stats.setAttack((int) (stats.getAttack() * multiplier));
-                        stats.setDefense((int) (stats.getDefense() * multiplier));
-                        stats.setSpecialAttack((int) (stats.getSpecialAttack() * multiplier));
-                        stats.setSpecialDefense((int) (stats.getSpecialDefense() * multiplier));
-                        stats.setSpeed((int) (stats.getSpeed() * multiplier));
-                        stats.setHP((int) (stats.getHP() * multiplier));
+                        double masteryBonus = MasteryManager.getMasteryBonus(player, pokemon);
+                        double totalMultiplier = multiplier * (1.0 + masteryBonus / 100.0);
+
+                        stats.setAttack((int) (stats.getAttack() * totalMultiplier));
+                        stats.setDefense((int) (stats.getDefense() * totalMultiplier));
+                        stats.setSpecialAttack((int) (stats.getSpecialAttack() * totalMultiplier));
+                        stats.setSpecialDefense((int) (stats.getSpecialDefense() * totalMultiplier));
+                        stats.setSpeed((int) (stats.getSpeed() * totalMultiplier));
+                        stats.setHP((int) (stats.getHP() * totalMultiplier));
                     }
                 }
             }

@@ -1,16 +1,21 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
 import com.mattutos.pixelmonrpgsystem.Config;
+import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
 import com.pixelmonmod.pixelmon.api.pokemon.ExperienceGroup;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
     private long lastDailyReward = 0;
+    private Map<String, MasteryProgress> masteries = new HashMap<>();
 
     public static int getExperienceForThisLevel(int level) {
 //        return (level * level * 100) + 100;
@@ -76,6 +81,13 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         tag.putInt("experience", experience);
         tag.putInt("level", level);
         tag.putLong("lastDailyReward", lastDailyReward);
+        
+        CompoundTag masteriesTag = new CompoundTag();
+        for (Map.Entry<String, MasteryProgress> entry : masteries.entrySet()) {
+            masteriesTag.put(entry.getKey(), entry.getValue().serializeNBT(provider));
+        }
+        tag.put("masteries", masteriesTag);
+        
         return tag;
     }
 
@@ -84,6 +96,16 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         experience = tag.getInt("experience");
         level = tag.getInt("level");
         lastDailyReward = tag.getLong("lastDailyReward");
+        
+        masteries.clear();
+        if (tag.contains("masteries")) {
+            CompoundTag masteriesTag = tag.getCompound("masteries");
+            for (String key : masteriesTag.getAllKeys()) {
+                MasteryProgress progress = new MasteryProgress();
+                progress.deserializeNBT(provider, masteriesTag.getCompound(key));
+                masteries.put(key, progress);
+            }
+        }
     }
 
     public boolean canClaimDailyReward() {
@@ -99,5 +121,19 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
 
     public long getLastDailyReward() {
         return lastDailyReward;
+    }
+
+    public MasteryProgress getMastery(String type) {
+        return masteries.computeIfAbsent(type, k -> new MasteryProgress());
+    }
+
+    public void addMasteryXp(String type, int xp) {
+        if (level >= 30) {
+            getMastery(type).addXp(xp);
+        }
+    }
+
+    public Map<String, MasteryProgress> getAllMasteries() {
+        return masteries;
     }
 }
