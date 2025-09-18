@@ -11,14 +11,13 @@ import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
+import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PixelmonRPGSystemEventHandler {
 
@@ -31,32 +30,15 @@ public class PixelmonRPGSystemEventHandler {
         }
     }
 
-    //TODO IMPLEMENTAR LOGICA DE LIMITAR LEVEL DO POKEMON PARA TRADE E GIFT
-
     @SubscribeEvent
     public void onSuccessCapture(CaptureEvent.SuccessfulCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
-
             ServerPlayer player = event.getPlayer();
-            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
-
-            int pokemonLevel = event.getPokemon().getPokemonLevel();
-
-            gainXpFromCapturedPokemon(player, event.getPokemon(), data);
-
-            int newPlayerLevel = data.getLevel();
-
-            if (pokemonLevel > newPlayerLevel) {
-                // SET THE POKEMON LEVEL TO THE PLAYER LEVEL
-                player.sendSystemMessage(Component.translatable(
-                    "pixelmonrpgsystem.message.capture.level.adjusted", pokemonLevel, newPlayerLevel
-                ).withStyle(ChatFormatting.GOLD));
-                event.getPokemon().setLevel(newPlayerLevel);
-            }
+            gainXpFromCapturedPokemon(player, event.getPokemon());
         }
     }
 
-    private void gainXpFromCapturedPokemon(ServerPlayer player, Pokemon pokemon, PlayerRPGCapability data) {
+    private void gainXpFromCapturedPokemon(ServerPlayer player, Pokemon pokemon) {
         int level = pokemon.getPokemonLevel();
         int catchRate = pokemon.getSpecies().getDefaultForm().getCatchRate();
 
@@ -69,10 +51,6 @@ public class PixelmonRPGSystemEventHandler {
 
         // Adds XP to the Player RPG system
         RPGExperienceManager.addExperience(player, xpGain, ExperienceSource.POKEMON_CAPTURE);
-
-        player.sendSystemMessage(Component.translatable(
-                "pixelmonrpgsystem.message.capture.xp", xpGain, pokemon.getSpecies().getName(), level
-        ));
     }
 
     @SubscribeEvent
@@ -110,8 +88,31 @@ public class PixelmonRPGSystemEventHandler {
 
     @SubscribeEvent
     public void onBattleStart(BattleStartedEvent.Pre event) {
+        limitTempPokemonLevel(event.getTeamOne());
+        limitTempPokemonLevel(event.getTeamTwo());
+
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
+    }
+
+    private void limitTempPokemonLevel(BattleParticipant[] team) {
+        for (var participant : team) {
+            if (participant instanceof PlayerParticipant playerPart) {
+                ServerPlayer player = (ServerPlayer) playerPart.getEntity();
+
+                PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
+
+                if (rpg != null) {
+                    int playerLevel = rpg.getLevel();
+                    for (PixelmonWrapper pw : playerPart.allPokemon) {
+                        if (pw == null) continue;
+                        if (pw.getPokemonLevel() > playerLevel) {
+                            pw.setTempLevel(playerLevel);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
@@ -126,6 +127,7 @@ public class PixelmonRPGSystemEventHandler {
                     double multiplier = 1.0 + (level / 10) * 0.05;
                     if (multiplier > 1.5) multiplier = 1.5;
 
+                    // TODO - should get the list of PixelmonWrapper from the battle
                     for (Pokemon pokemon : playerPart.getStorage().getTeam()) {
                         if (pokemon == null) continue;
                         PermanentStats stats = pokemon.getStats();
