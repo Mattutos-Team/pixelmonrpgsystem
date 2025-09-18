@@ -7,6 +7,7 @@ import com.mattutos.pixelmonrpgsystem.experience.RPGExperienceManager;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
+import com.pixelmonmod.pixelmon.api.events.LevelUpEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
@@ -27,6 +28,38 @@ public class PixelmonRPGSystemEventHandler {
             double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
             int playerXP = Math.max(1, (int) (event.getExperience() * multiplier));
             RPGExperienceManager.addExperience(serverPlayer, playerXP, ExperienceSource.POKEMON_BATTLE);
+
+            limitXpGainedFromPokemonByPlayerLevel(event);
+        }
+    }
+
+    private void limitXpGainedFromPokemonByPlayerLevel(ExperienceGainEvent event) {
+        Pokemon pokemon = event.pokemon;
+        if (!(pokemon.getOwnerPlayer() instanceof ServerPlayer serverPlayer)) return;
+
+        if (CapabilitiesRegistry.getPlayerRPGCapability(serverPlayer) instanceof PlayerRPGCapability data) {
+            int playerLevel = data.getLevel();
+            if (pokemon.getPokemonLevel() > playerLevel) {
+                event.setCanceled(true);
+            } else if (pokemon.getPokemonLevel() == playerLevel) {
+                // calcule abaixo quanto de xp falta de fato para ir para o proximo nivel
+                int xpForNextLevel = Math.max(0, (pokemon.getExperienceToLevelUp() - pokemon.getExperience()));
+                int calculateXpForNextLevel = Math.min(xpForNextLevel, event.getExperience());
+                if (calculateXpForNextLevel == 0) {
+                    event.setCanceled(true);
+                }
+                event.setExperience(calculateXpForNextLevel);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onLevelUpEvent(LevelUpEvent.Pre event) {
+        if (CapabilitiesRegistry.getPlayerRPGCapability(event.getPlayer()) instanceof PlayerRPGCapability data) {
+            int playerLevel = data.getLevel();
+            if (event.getAfterLevel() > playerLevel) {
+                event.setCanceled(true);
+            }
         }
     }
 

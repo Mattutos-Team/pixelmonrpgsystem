@@ -32,8 +32,6 @@ public class ExperienceNotificationListener {
             return;
         }
 
-        int currentLevel = data.getLevel();
-
         NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), player);
 
         NetworkHandler.sendToPlayer(new PacketSyncExperience(data.getExperience(), experienceGained, source), player);
