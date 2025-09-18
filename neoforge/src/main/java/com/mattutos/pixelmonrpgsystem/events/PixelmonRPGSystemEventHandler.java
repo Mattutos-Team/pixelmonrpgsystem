@@ -2,80 +2,78 @@ package com.mattutos.pixelmonrpgsystem.events;
 
 import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
-import com.mattutos.pixelmonrpgsystem.network.NetworkHandler;
-import com.mattutos.pixelmonrpgsystem.network.PlayerRPGSyncPacket;
+import com.mattutos.pixelmonrpgsystem.experience.ExperienceSource;
+import com.mattutos.pixelmonrpgsystem.experience.RPGExperienceManager;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
+import com.pixelmonmod.pixelmon.api.events.LevelUpEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
+import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PixelmonRPGSystemEventHandler {
-
-    private static void notifyPlayerLevelUp(ServerPlayer serverPlayer, int newLevel) {
-        serverPlayer.sendSystemMessage(Component.translatable("pixelmonrpgsystem.message.levelup", newLevel)
-        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
-    }
 
     @SubscribeEvent
     public void onPokemonGainExperience(ExperienceGainEvent event) {
         if (event.pokemon.getOwnerPlayer() instanceof ServerPlayer serverPlayer) {
-            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(serverPlayer);
-            if (data != null) {
-                double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
-                int playerXP = Math.max(1, (int) (event.getExperience() * multiplier));
-                int oldLevel = data.getLevel();
-                data.addExperience(playerXP);
-                int newLevel = data.getLevel();
+            double multiplier = Config.PLAYER_XP_MULTIPLIER.get();
+            int playerXP = Math.max(1, (int) (event.getExperience() * multiplier));
+            RPGExperienceManager.addExperience(serverPlayer, playerXP, ExperienceSource.POKEMON_BATTLE);
 
-                NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), serverPlayer);
+            limitXpGainedFromPokemonByPlayerLevel(event);
+        }
+    }
 
-                if (newLevel > oldLevel) {
-                    notifyPlayerLevelUp(serverPlayer, newLevel);
+    private void limitXpGainedFromPokemonByPlayerLevel(ExperienceGainEvent event) {
+        Pokemon pokemon = event.pokemon;
+        if (!(pokemon.getOwnerPlayer() instanceof ServerPlayer serverPlayer)) return;
+
+        if (CapabilitiesRegistry.getPlayerRPGCapability(serverPlayer) instanceof PlayerRPGCapability data) {
+            int playerLevel = data.getLevel();
+            if (pokemon.getPokemonLevel() > playerLevel) {
+                event.setCanceled(true);
+            } else if (pokemon.getPokemonLevel() == playerLevel) {
+                // calcule abaixo quanto de xp falta de fato para ir para o proximo nivel
+                int xpForNextLevel = Math.max(0, (pokemon.getExperienceToLevelUp() - pokemon.getExperience()));
+                int calculateXpForNextLevel = Math.min(xpForNextLevel, event.getExperience());
+                if (calculateXpForNextLevel == 0) {
+                    event.setCanceled(true);
                 }
+                event.setExperience(calculateXpForNextLevel);
             }
         }
     }
 
-    //TODO IMPLEMENTAR LOGICA DE LIMITAR LEVEL DO POKEMON PARA TRADE E GIFT
+    @SubscribeEvent
+    public void onLevelUpEvent(LevelUpEvent.Pre event) {
+        if (CapabilitiesRegistry.getPlayerRPGCapability(event.getPlayer()) instanceof PlayerRPGCapability data) {
+            int playerLevel = data.getLevel();
+            if (event.getAfterLevel() > playerLevel) {
+                event.setCanceled(true);
+            }
+        }
+    }
 
     @SubscribeEvent
     public void onSuccessCapture(CaptureEvent.SuccessfulCapture event) {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
-
             ServerPlayer player = event.getPlayer();
-            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
-
-            int pokemonLevel = event.getPokemon().getPokemonLevel();
-
-            gainXpFromCapturedPokemon(player, event.getPokemon(), data);
-
-            int newPlayerLevel = data.getLevel();
-
-            if (pokemonLevel > newPlayerLevel) {
-                // SET THE POKEMON LEVEL TO THE PLAYER LEVEL
-                player.sendSystemMessage(Component.translatable(
-                    "pixelmonrpgsystem.message.capture.level.adjusted", pokemonLevel, newPlayerLevel
-                ).withStyle(ChatFormatting.GOLD));
-                event.getPokemon().setLevel(newPlayerLevel);
-            }
+            gainXpFromCapturedPokemon(player, event.getPokemon());
         }
     }
 
-    private void gainXpFromCapturedPokemon(ServerPlayer player, Pokemon pokemon, PlayerRPGCapability data) {
+    private void gainXpFromCapturedPokemon(ServerPlayer player, Pokemon pokemon) {
         int level = pokemon.getPokemonLevel();
         int catchRate = pokemon.getSpecies().getDefaultForm().getCatchRate();
-        int oldPlayerLevel = data.getLevel();
 
         // Base XP value
         int base = 5;
@@ -85,18 +83,7 @@ public class PixelmonRPGSystemEventHandler {
         int xpGain = (int) Math.round(level * base * rarityFactor);
 
         // Adds XP to the Player RPG system
-        data.addExperience(xpGain);
-
-        // New player level after gaining XP
-        int newPlayerLevel = data.getLevel();
-
-        NetworkHandler.sendToPlayer(new PlayerRPGSyncPacket(data.getExperience(), data.getLevel(), data.getLastDailyReward()), player);
-
-        player.sendSystemMessage(Component.translatable(
-                "pixelmonrpgsystem.message.capture.xp", xpGain, pokemon.getSpecies().getName(), level
-        ));
-
-        if (newPlayerLevel > oldPlayerLevel) notifyPlayerLevelUp(player, newPlayerLevel);
+        RPGExperienceManager.addExperience(player, xpGain, ExperienceSource.POKEMON_CAPTURE);
     }
 
     @SubscribeEvent
@@ -134,8 +121,31 @@ public class PixelmonRPGSystemEventHandler {
 
     @SubscribeEvent
     public void onBattleStart(BattleStartedEvent.Pre event) {
+        limitTempPokemonLevel(event.getTeamOne());
+        limitTempPokemonLevel(event.getTeamTwo());
+
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
+    }
+
+    private void limitTempPokemonLevel(BattleParticipant[] team) {
+        for (var participant : team) {
+            if (participant instanceof PlayerParticipant playerPart) {
+                ServerPlayer player = (ServerPlayer) playerPart.getEntity();
+
+                PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
+
+                if (rpg != null) {
+                    int playerLevel = rpg.getLevel();
+                    for (PixelmonWrapper pw : playerPart.allPokemon) {
+                        if (pw == null) continue;
+                        if (pw.getPokemonLevel() > playerLevel) {
+                            pw.setTempLevel(playerLevel);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
@@ -150,6 +160,7 @@ public class PixelmonRPGSystemEventHandler {
                     double multiplier = 1.0 + (level / 10) * 0.05;
                     if (multiplier > 1.5) multiplier = 1.5;
 
+                    // TODO - should get the list of PixelmonWrapper from the battle
                     for (Pokemon pokemon : playerPart.getStorage().getTeam()) {
                         if (pokemon == null) continue;
                         PermanentStats stats = pokemon.getStats();

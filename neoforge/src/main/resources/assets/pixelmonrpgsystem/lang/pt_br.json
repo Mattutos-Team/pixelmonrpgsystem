@@ -16,6 +16,9 @@
   "pixelmonrpgsystem.message.levelup": "Parabéns! Você subiu para o nível %1$s!",
   "pixelmonrpgsystem.message.capture.impossible": "Este Pokémon é de nível %1$s, mas você é de nível %2$s. A captura é IMPOSSÍVEL!",
   "pixelmonrpgsystem.message.capture.harder": "Este Pokémon é de nível %1$s, mas você é de nível %2$s. A captura será mais difícil!",
+  "pixelmonrpgsystem.message.xp.gained.pokemon_capture": "Você ganhou +%1$s XP (Origem: Captura de Pokémon)",
+  "pixelmonrpgsystem.message.xp.gained.pokemon_battle": "Você ganhou +%1$s XP (Origem: Batalha de Pokémon)",
+  "pixelmonrpgsystem.message.xp.gained.unknown": "Você ganhou +%1$s XP",
 
   "pixelmonrpgsystem.dailyreward.title": "Recompensa Diária",
   "pixelmonrpgsystem.dailyreward.button": "🎁 Recompensa Diária",
