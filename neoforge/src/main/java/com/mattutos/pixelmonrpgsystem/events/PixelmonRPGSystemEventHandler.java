@@ -34,7 +34,10 @@ public class PixelmonRPGSystemEventHandler {
             
             if (event.getExperience() > 0) {
                 try {
-                    MasteryManager.addBattleVictoryXp(serverPlayer, event.pokemon);
+                    Pokemon faintedPokemon = event.getFaintedPokemon();
+                    if (faintedPokemon != null) {
+                        MasteryManager.addBattleVictoryXp(serverPlayer, faintedPokemon);
+                    }
                 } catch (Exception e) {
                     System.err.println("Error adding mastery XP from battle victory: " + e.getMessage()); // (important-comment)
                     e.printStackTrace();
