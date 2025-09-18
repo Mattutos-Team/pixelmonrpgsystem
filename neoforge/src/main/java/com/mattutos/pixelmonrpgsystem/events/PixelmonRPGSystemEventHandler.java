@@ -137,8 +137,8 @@ public class PixelmonRPGSystemEventHandler {
         limitTempPokemonLevel(event.getTeamOne());
         limitTempPokemonLevel(event.getTeamTwo());
 
-        recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
-        recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
+        // Removed recalculateStatsBasedOnPlayerLevel calls to fix client crash
+        // Battle stat bonuses temporarily disabled until safe PixelmonWrapper implementation found
     }
 
     private void limitTempPokemonLevel(BattleParticipant[] team) {
@@ -161,35 +161,4 @@ public class PixelmonRPGSystemEventHandler {
         }
     }
 
-    private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
-        for (var participant : team) {
-            if (participant instanceof PlayerParticipant playerPart) {
-                ServerPlayer player = (ServerPlayer) playerPart.getEntity();
-
-                PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
-
-                if (rpg != null) {
-                    int level = rpg.getLevel();
-                    double multiplier = 1.0 + (level / 10) * 0.05;
-                    if (multiplier > 1.5) multiplier = 1.5;
-
-                    // TODO - should get the list of PixelmonWrapper from the battle
-                    for (Pokemon pokemon : playerPart.getStorage().getTeam()) {
-                        if (pokemon == null) continue;
-                        PermanentStats stats = pokemon.getStats();
-
-                        double masteryBonus = MasteryManager.getMasteryBonus(player, pokemon);
-                        double totalMultiplier = multiplier * (1.0 + masteryBonus / 100.0);
-
-                        stats.setAttack((int) (stats.getAttack() * totalMultiplier));
-                        stats.setDefense((int) (stats.getDefense() * totalMultiplier));
-                        stats.setSpecialAttack((int) (stats.getSpecialAttack() * totalMultiplier));
-                        stats.setSpecialDefense((int) (stats.getSpecialDefense() * totalMultiplier));
-                        stats.setSpeed((int) (stats.getSpeed() * totalMultiplier));
-                        stats.setHP((int) (stats.getHP() * totalMultiplier));
-                    }
-                }
-            }
-        }
-    }
 }
