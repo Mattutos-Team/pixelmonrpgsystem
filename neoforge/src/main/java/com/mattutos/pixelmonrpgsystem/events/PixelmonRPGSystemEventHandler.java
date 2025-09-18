@@ -33,7 +33,12 @@ public class PixelmonRPGSystemEventHandler {
             limitXpGainedFromPokemonByPlayerLevel(event);
             
             if (event.getExperience() > 0) {
-                MasteryManager.addBattleVictoryXp(serverPlayer, event.pokemon);
+                try {
+                    MasteryManager.addBattleVictoryXp(serverPlayer, event.pokemon);
+                } catch (Exception e) {
+                    System.err.println("Error adding mastery XP from battle victory: " + e.getMessage()); // (important-comment)
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -73,7 +78,12 @@ public class PixelmonRPGSystemEventHandler {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             ServerPlayer player = event.getPlayer();
             gainXpFromCapturedPokemon(player, event.getPokemon());
-            MasteryManager.addCaptureXp(player, event.getPokemon());
+            try {
+                MasteryManager.addCaptureXp(player, event.getPokemon());
+            } catch (Exception e) {
+                System.err.println("Error adding mastery XP from capture: " + e.getMessage()); // (important-comment)
+                e.printStackTrace();
+            }
         }
     }
 
@@ -121,11 +131,16 @@ public class PixelmonRPGSystemEventHandler {
 
                     event.getCaptureValues().setCatchRate(debufCacthRate);
                 } else {
-                    double masteryBonus = MasteryManager.getMasteryBonus((ServerPlayer) player, event.getPokemon());
-                    if (masteryBonus > 0) {
-                        int catchRate = event.getCaptureValues().getCatchRate();
-                        int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
-                        event.getCaptureValues().setCatchRate(bonusCatchRate);
+                    try {
+                        double masteryBonus = MasteryManager.getMasteryBonus((ServerPlayer) player, event.getPokemon());
+                        if (masteryBonus > 0) {
+                            int catchRate = event.getCaptureValues().getCatchRate();
+                            int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
+                            event.getCaptureValues().setCatchRate(bonusCatchRate);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error calculating mastery bonus for capture: " + e.getMessage()); // (important-comment)
+                        e.printStackTrace();
                     }
                 }
             }
