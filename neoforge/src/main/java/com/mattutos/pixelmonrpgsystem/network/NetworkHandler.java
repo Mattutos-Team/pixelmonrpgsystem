@@ -13,6 +13,11 @@ public class NetworkHandler {
                 PlayerRPGSyncPacket.STREAM_CODEC,
                 PlayerRPGSyncPacket::handle
         );
+        registrar.playToClient(
+                PacketSyncExperience.TYPE,
+                PacketSyncExperience.STREAM_CODEC,
+                PacketSyncExperience::handle
+        );
         registrar.playToServer(DailyRewardRequestPacket.TYPE, DailyRewardRequestPacket.STREAM_CODEC, DailyRewardRequestPacket::handle);
         registrar.playToClient(DailyRewardResponsePacket.TYPE, DailyRewardResponsePacket.STREAM_CODEC, DailyRewardResponsePacket::handle);
     }
@@ -22,6 +27,10 @@ public class NetworkHandler {
     }
 
     public static void sendToPlayer(DailyRewardResponsePacket packet, ServerPlayer player) {
+        player.connection.send(packet);
+    }
+
+    public static void sendToPlayer(PacketSyncExperience packet, ServerPlayer player) {
         player.connection.send(packet);
     }
 

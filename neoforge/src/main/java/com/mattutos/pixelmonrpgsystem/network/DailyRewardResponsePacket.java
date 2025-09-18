@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import com.mattutos.pixelmonrpgsystem.PixelmonRPGSystem;
-import com.mattutos.pixelmonrpgsystem.dailyreward.DailyRewardScreen;
-import net.minecraft.client.Minecraft;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -41,7 +39,17 @@ public record DailyRewardResponsePacket(List<ItemStack> rewards) implements Cust
 
     public static void handle(DailyRewardResponsePacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
-            Minecraft.getInstance().setScreen(new DailyRewardScreen(packet.rewards));
+            try {
+                Class<?> minecraftClass = Class.forName("net.minecraft.client.Minecraft");
+                Object minecraftInstance = minecraftClass.getMethod("getInstance").invoke(null);
+                
+                Class<?> screenClass = Class.forName("com.mattutos.pixelmonrpgsystem.dailyreward.DailyRewardScreen");
+                Object screen = screenClass.getConstructor(List.class).newInstance(packet.rewards);
+                
+                minecraftClass.getMethod("setScreen", Class.forName("net.minecraft.client.gui.screens.Screen"))
+                    .invoke(minecraftInstance, screen);
+            } catch (Exception e) {
+            }
         });
     }
 }
