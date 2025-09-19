@@ -4,6 +4,7 @@ import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class MasteryManager {
 
     public static List<String> getPokemonTypes(Pokemon pokemon) {
         List<String> types = new ArrayList<>();
-        
+
         try {
             var pokemonTypes = pokemon.getTypes();
             if (pokemonTypes != null) {
@@ -28,11 +29,11 @@ public class MasteryManager {
             System.err.println("Error extracting Pokemon types, using fallback: " + e.getMessage()); // (important-comment)
             types.add("normal");
         }
-        
+
         if (types.isEmpty()) {
             types.add("normal");
         }
-        
+
         return types;
     }
 
@@ -42,8 +43,20 @@ public class MasteryManager {
 
         List<String> types = getPokemonTypes(pokemon);
         int xpAmount = Config.MASTERY_XP_CAPTURE.get();
+        String typeDisplay = getTypeDisplayName(types.getFirst());
+
 
         for (String type : types) {
+            int currentMasteryExp = data.getCurrentMasteryStage(type);
+            if (data.getMastery(type) == null) continue;
+
+            if (currentMasteryExp == 3) continue;
+
+            player.sendSystemMessage(Component.literal(
+                    "§aVocê ganhou §b" + xpAmount + " XP §ade Maestria do tipo §e"
+                            + typeDisplay + " §apor capturar §b" + pokemon.getDisplayName().getString() + "§a!"
+            ));
+
             data.addMasteryXp(type, xpAmount);
             if (!Config.MASTERY_DUAL_TYPE_XP.get()) {
                 break;
@@ -57,8 +70,18 @@ public class MasteryManager {
 
         List<String> types = getPokemonTypes(defeatedPokemon);
         int xpAmount = Config.MASTERY_XP_VICTORY.get();
+        String typeDisplay = getTypeDisplayName(types.getFirst());
 
         for (String type : types) {
+            int currentMasteryExp = data.getCurrentMasteryStage(type);
+            if (data.getMastery(type) == null) continue;
+
+            if (currentMasteryExp == 3) continue;
+
+            player.sendSystemMessage(Component.literal(
+                    "§aVocê ganhou §b" + xpAmount + " XP §ade Maestria do tipo §e"
+                            + typeDisplay + " §apor vencer §b" + defeatedPokemon.getDisplayName().getString() + "§a!"
+            ));
             data.addMasteryXp(type, xpAmount);
             if (!Config.MASTERY_DUAL_TYPE_XP.get()) {
                 break;

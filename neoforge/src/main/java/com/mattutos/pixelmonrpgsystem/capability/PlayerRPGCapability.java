@@ -65,6 +65,10 @@ public class PlayerRPGCapability {
         saveToEntity(entity);
     }
 
+    public int getCurrentMasteryStage(String type) {
+        return data.getMastery(type).getStage();
+    }
+
     public java.util.Map<String, com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress> getAllMasteries() {
         return data.getAllMasteries();
     }
@@ -82,5 +86,6 @@ public class PlayerRPGCapability {
     public void saveToEntity(LivingEntity entity) {
         entity.setData(AttachmentsRegistry.PLAYER_RPG_DATA.get(), data);
     }
+
 
 }

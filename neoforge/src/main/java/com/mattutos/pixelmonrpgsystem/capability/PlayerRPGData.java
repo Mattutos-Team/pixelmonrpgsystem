@@ -9,6 +9,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
@@ -124,12 +125,24 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     }
 
     public MasteryProgress getMastery(String type) {
-        return masteries.computeIfAbsent(type, k -> new MasteryProgress());
+        String normalized = normalizeType(type);
+        if (!isValidType(normalized)) {
+            throw new IllegalArgumentException("Tipo inválido de maestria: " + type);
+        }
+        return masteries.computeIfAbsent(normalized, k -> new MasteryProgress());
     }
 
     public void addMasteryXp(String type, int xp) {
-        if (level >= 30) {
-            getMastery(type).addXp(xp);
+        String normalized = normalizeType(type);
+        if (!isValidType(normalized)) {
+            throw new IllegalArgumentException("Tipo inválido de maestria: " + type);
+        }
+
+        int currentXp = getMastery(normalized).getXp();
+        int currentLevel = getMastery(normalized).getStage();
+
+        if (level >= 30 && (currentLevel < 3 || (currentLevel == 3 && currentXp < 4000))) {
+            getMastery(normalized).addXp(xp);
         }
     }
 
@@ -151,5 +164,19 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
 
     public void resetAllMasteries() {
         masteries.clear();
+    }
+
+    private static final Set<String> VALID_TYPES = Set.of(
+            "fire", "water", "grass", "electric", "psychic", "ice", "dragon",
+            "dark", "fairy", "fighting", "poison", "ground", "flying",
+            "bug", "rock", "ghost", "steel", "normal"
+    );
+
+    private boolean isValidType(String type) {
+        return VALID_TYPES.contains(type);
+    }
+
+    private String normalizeType(String type) {
+        return type == null ? "" : type.toLowerCase();
     }
 }
