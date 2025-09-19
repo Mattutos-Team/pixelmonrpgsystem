@@ -18,12 +18,14 @@ public class MasteryManager {
             var pokemonTypes = pokemon.getTypes();
             if (pokemonTypes != null) {
                 for (var typeHolder : pokemonTypes) {
-                    if (typeHolder != null && typeHolder.value() != null) {
-                        types.add(typeHolder.value().toString().toLowerCase());
+                    if (typeHolder != null && typeHolder.unwrapKey().isPresent()) {
+                        String typeName = typeHolder.unwrapKey().get().location().getPath();
+                        types.add(typeName.toLowerCase());
                     }
                 }
             }
         } catch (Exception e) {
+            System.err.println("Error extracting Pokemon types, using fallback: " + e.getMessage()); // (important-comment)
             types.add("normal");
         }
         
