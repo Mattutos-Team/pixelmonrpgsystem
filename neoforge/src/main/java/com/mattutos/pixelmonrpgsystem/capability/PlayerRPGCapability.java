@@ -69,6 +69,16 @@ public class PlayerRPGCapability {
         return data.getAllMasteries();
     }
 
+    public void setMastery(String type, String masteryLevel) {
+        data.setMastery(type, masteryLevel);
+        saveToEntity(entity);
+    }
+
+    public void resetAllMasteries() {
+        data.resetAllMasteries();
+        saveToEntity(entity);
+    }
+
     public void saveToEntity(LivingEntity entity) {
         entity.setData(AttachmentsRegistry.PLAYER_RPG_DATA.get(), data);
     }

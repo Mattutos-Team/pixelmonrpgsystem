@@ -136,4 +136,20 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
     public Map<String, MasteryProgress> getAllMasteries() {
         return masteries;
     }
+
+    public void setMastery(String type, String masteryLevel) {
+        MasteryProgress progress = getMastery(type);
+        switch (masteryLevel.toLowerCase()) {
+            case "novato" -> progress.setStageAndXp(0, 0);
+            case "aspirante" -> progress.setStageAndXp(1, 1000);
+            case "experiente" -> progress.setStageAndXp(2, 1800);
+            case "mestre" -> progress.setStageAndXp(3, 4000);
+            default -> throw new IllegalArgumentException("Invalid mastery level: " + masteryLevel);
+        }
+        masteries.put(type, progress);
+    }
+
+    public void resetAllMasteries() {
+        masteries.clear();
+    }
 }

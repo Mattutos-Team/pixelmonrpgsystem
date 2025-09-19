@@ -85,12 +85,12 @@ public class MasteryManager {
     public static String getTypeDisplayName(String type) {
         return switch (type.toLowerCase()) {
             case "fire" -> "Fogo";
-            case "water" -> "Água";
+            case "water" -> "Agua";
             case "grass" -> "Grama";
-            case "electric" -> "Elétrico";
-            case "psychic" -> "Psíquico";
+            case "electric" -> "Eletrico";
+            case "psychic" -> "Psiquico";
             case "ice" -> "Gelo";
-            case "dragon" -> "Dragão";
+            case "dragon" -> "Dragao";
             case "dark" -> "Sombrio";
             case "fairy" -> "Fada";
             case "fighting" -> "Lutador";
@@ -100,7 +100,7 @@ public class MasteryManager {
             case "bug" -> "Inseto";
             case "rock" -> "Pedra";
             case "ghost" -> "Fantasma";
-            case "steel" -> "Aço";
+            case "steel" -> "Aco";
             case "normal" -> "Normal";
             default -> type.substring(0, 1).toUpperCase() + type.substring(1);
         };

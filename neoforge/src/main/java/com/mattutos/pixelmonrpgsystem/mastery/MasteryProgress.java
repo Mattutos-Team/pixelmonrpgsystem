@@ -5,8 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class MasteryProgress implements INBTSerializable<CompoundTag> {
-    private int stage = 0; // 0 = Novato, 1 = Aspirante, 2 = Experiente, 3 = Mestre
-    private int xp = 0;
+    int stage = 0; // 0 = Novato, 1 = Aspirante, 2 = Experiente, 3 = Mestre
+    int xp = 0;
 
     public MasteryProgress() {}
 
@@ -46,6 +46,11 @@ public class MasteryProgress implements INBTSerializable<CompoundTag> {
             case 3 -> "Mestre";
             default -> "Desconhecido";
         };
+    }
+
+    public void setStageAndXp(int newStage, int newXp) {
+        this.stage = newStage;
+        this.xp = newXp;
     }
 
     public double getBonusPercentage() {
