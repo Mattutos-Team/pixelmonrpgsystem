@@ -31,7 +31,7 @@ public class PixelmonRPGSystemEventHandler {
             RPGExperienceManager.addExperience(serverPlayer, playerXP, ExperienceSource.POKEMON_BATTLE);
 
             limitXpGainedFromPokemonByPlayerLevel(event);
-            
+
             if (event.getExperience() > 0) {
                 try {
                     Pokemon faintedPokemon = event.getFaintedPokemon();
@@ -139,6 +139,15 @@ public class PixelmonRPGSystemEventHandler {
                         if (masteryBonus > 0) {
                             int catchRate = event.getCaptureValues().getCatchRate();
                             int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
+
+                            Pokemon faintedPokemon = event.getPokemon();
+                            String pokemonType = String.valueOf(MasteryManager.getPokemonTypes(faintedPokemon).getFirst());
+
+                            player.sendSystemMessage(Component.literal(
+                                    "§aBônus de §b" + (int) masteryBonus + "% §ana taxa de captura por Maestria do tipo §e"
+                                            + MasteryManager.getTypeDisplayName(pokemonType) + "§a!"
+                            ));
+
                             event.getCaptureValues().setCatchRate(bonusCatchRate);
                         }
                     } catch (Exception e) {
