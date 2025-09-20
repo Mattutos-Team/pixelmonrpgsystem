@@ -25,5 +25,15 @@
   "pixelmonrpgsystem.dailyreward.button.claimed": "🎁 Already Claimed",
   "pixelmonrpgsystem.dailyreward.confirm": "Confirm",
   "pixelmonrpgsystem.dailyreward.already_claimed": "You already claimed your daily reward today.",
-  "pixelmonrpgsystem.dailyreward.claimed_success": "Daily reward claimed successfully!"
+  "pixelmonrpgsystem.dailyreward.claimed_success": "Daily reward claimed successfully!",
+  "pixelmonrpgsystem.jade.pixelmon.owner": "Owner: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.id_dex": "ID Dex: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.gender": "Gender: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.seen": "Seen: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.caught": "Caught: %1$s",
+
+  "config.jade.plugin_pixelmonrpgsystem.pixelmon_entity": "Pixelmon Entity",
+  "pixelmonrpgsystem.jade.pixelmon.form": "Form: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.palette": "Palette: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.gen": "Gen: %1$s"
 }
