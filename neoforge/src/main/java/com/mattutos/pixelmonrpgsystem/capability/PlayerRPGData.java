@@ -6,7 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
-public class PlayerRPGData implements INBTSerializable<CompoundTag> {
+public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
@@ -99,5 +99,16 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
 
     public long getLastDailyReward() {
         return lastDailyReward;
+    }
+
+    @Override
+    public PlayerRPGData clone() {
+        PlayerRPGData clone = new PlayerRPGData();
+
+        clone.experience = this.experience;
+        clone.level = this.level;
+        clone.lastDailyReward = this.lastDailyReward;
+
+        return clone;
     }
 }

@@ -26,5 +26,15 @@
   "pixelmonrpgsystem.dailyreward.button.claimed": "🎁 Já Resgatado",
   "pixelmonrpgsystem.dailyreward.confirm": "Confirmar",
   "pixelmonrpgsystem.dailyreward.already_claimed": "Você já resgatou sua recompensa diária hoje.",
-  "pixelmonrpgsystem.dailyreward.claimed_success": "Recompensa diária resgatada com sucesso!"
+  "pixelmonrpgsystem.dailyreward.claimed_success": "Recompensa diária resgatada com sucesso!",
+
+  "config.jade.plugin_pixelmonrpgsystem.pixelmon_entity": "Entidade Pixelmon",
+  "pixelmonrpgsystem.jade.pixelmon.owner": "Dono: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.id_dex": "ID Dex: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.gender": "Gênero: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.seen": "Visto: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.caught": "Capturado: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.form": "Forma: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.palette": "Paleta: %1$s",
+  "pixelmonrpgsystem.jade.pixelmon.gen": "Geração: %1$s"
 }
