@@ -58,7 +58,7 @@ public class MasteryProgress implements INBTSerializable<CompoundTag> {
             case 0 -> 0.0; // Novato - sem bônus
             case 1 -> 5.0; // Aspirante - +5%
             case 2 -> 7.5; // Experiente - +7.5%
-            case 3 -> xp >= 4000 ? 10.0 : 0.0; // Mestre - +10% apenas com 4000 XP exatos
+            case 3 -> xp >= 4000 ? 10.0 : 7.5; // Mestre - +10% apenas com 4000 XP exatos
             default -> 0.0;
         };
     }

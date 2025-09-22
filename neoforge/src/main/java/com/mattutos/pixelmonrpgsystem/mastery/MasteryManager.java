@@ -69,25 +69,32 @@ public class MasteryManager {
         if (data == null || data.getLevel() < 30) return;
 
         List<String> types = getPokemonTypes(defeatedPokemon);
+        if (types.isEmpty()) return;
+
         int xpAmount = Config.MASTERY_XP_VICTORY.get();
-        String typeDisplay = getTypeDisplayName(types.getFirst());
+        int splitXp = xpAmount / types.size();
 
         for (String type : types) {
-            int currentMasteryExp = data.getCurrentMasteryStage(type);
             if (data.getMastery(type) == null) continue;
 
-            if (currentMasteryExp == 3) continue;
+            int currentMasteryStage = data.getCurrentMasteryStage(type);
+            if (currentMasteryStage >= 3) continue;
+
+            String typeDisplay = getTypeDisplayName(type);
 
             player.sendSystemMessage(Component.literal(
-                    "§aVocê ganhou §b" + xpAmount + " XP §ade Maestria do tipo §e"
+                    "§aVocê ganhou §b" + splitXp + " XP §ade Maestria do tipo §e"
                             + typeDisplay + " §apor vencer §b" + defeatedPokemon.getDisplayName().getString() + "§a!"
             ));
-            data.addMasteryXp(type, xpAmount);
+
+            data.addMasteryXp(type, splitXp);
+
             if (!Config.MASTERY_DUAL_TYPE_XP.get()) {
                 break;
             }
         }
     }
+
 
     public static double getMasteryBonus(ServerPlayer player, Pokemon pokemon) {
         PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
