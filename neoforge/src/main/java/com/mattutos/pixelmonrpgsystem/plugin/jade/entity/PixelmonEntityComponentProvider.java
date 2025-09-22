@@ -64,11 +64,11 @@ public enum PixelmonEntityComponentProvider implements IEntityComponentProvider,
 
     private void appendInfoPokemonBasicInfos(ITooltip iTooltip, EntityAccessor entityAccessor) {
         PixelmonEntity pixelmonEntity = (PixelmonEntity) entityAccessor.getEntity();
-        List<TypeHelper> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity);
+        List<TypeHelper> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity.getPokemon());
 
         iTooltip.add(elementHelperExt.spacer(5, 0).align(IElement.Align.CENTER));
         pokemonTypesHelper.forEach(type -> {
-            IElement iconType = elementHelperExt.texture(type.texture(), 16, 16).align(IElement.Align.CENTER);
+            IElement iconType = elementHelperExt.texture(type.location(), 16, 16).align(IElement.Align.CENTER);
             iTooltip.append(iconType);
             iTooltip.append(elementHelperExt.spacer(5, 0).align(IElement.Align.CENTER));
         });
@@ -78,7 +78,7 @@ public enum PixelmonEntityComponentProvider implements IEntityComponentProvider,
         PixelmonEntity pixelmonEntity = (PixelmonEntity) entityAccessor.getEntity();
         CompoundTag serverData = entityAccessor.getServerData();
         Pokemon pokemon = pixelmonEntity.getPokemon();
-        List<TypeHelper> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity);
+        List<TypeHelper> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity.getPokemon());
 
         iTooltip.add(Component.translatable("pixelmonrpgsystem.jade.pixelmon.id_dex", pokemon.getDex()));
 
@@ -99,7 +99,7 @@ public enum PixelmonEntityComponentProvider implements IEntityComponentProvider,
         iTooltip.add(Component.translatable("pixelmonrpgsystem.jade.pixelmon.caught", serverData.getInt("caught")));
 
         pokemonTypesHelper.forEach(type -> {
-            IElement iconType = elementHelperExt.texture(type.texture(), 10, 10);
+            IElement iconType = elementHelperExt.texture(type.location(), 10, 10);
             iTooltip.add(iconType.translate(new Vec2(0, -1)));
             iTooltip.append(Component.literal(" - "));
             iTooltip.append(type.translatedComponent());
