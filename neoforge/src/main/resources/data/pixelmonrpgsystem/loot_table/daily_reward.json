@@ -2,6 +2,23 @@
   "type": "minecraft:chest",
   "pools": [
     {
+      "name": "food",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "minecraft:cooked_mutton",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 20
+            }
+          ],
+          "weight": 1
+        }
+      ]
+    },
+    {
       "name": "pokeball_common_ball",
       "rolls": 1,
       "entries": [
@@ -92,35 +109,9 @@
       ]
     },
     {
-      "name": "random_extra",
+      "name": "poke_potion",
       "rolls": 1,
       "entries": [
-        {
-          "type": "item",
-          "name": "pixelmon:poke_ball",
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "pixelmon:poke_ball": "luxury_ball"
-              }
-            }
-          ],
-          "weight": 1
-        },
-        {
-          "type": "item",
-          "name": "pixelmon:poke_ball",
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "pixelmon:poke_ball": "safari_ball"
-              }
-            }
-          ],
-          "weight": 1
-        },
         {
           "type": "item",
           "name": "pixelmon:potion",
@@ -133,7 +124,7 @@
               }
             }
           ],
-          "weight": 1
+          "weight": 2
         },
         {
           "type": "item",
@@ -158,6 +149,337 @@
               "count": {
                 "min": 1,
                 "max": 2
+              }
+            }
+          ],
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "random_extra_pokeball",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "luxury_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "nest_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "quick_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "dusk_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "cherish_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "timer_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "ancient_poke_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "moon_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "repeat_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "love_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "net_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "dive_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "strange_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "level_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "sport_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "ancient_ultra_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "safari_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "heavy_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "fast_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "heal_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "origin_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "lure_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "gs_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "friend_ball"
+              }
+            }
+          ],
+          "weight": 1
+        },
+        {
+          "type": "item",
+          "name": "pixelmon:poke_ball",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "pixelmon:poke_ball": "premier_ball"
               }
             }
           ],
