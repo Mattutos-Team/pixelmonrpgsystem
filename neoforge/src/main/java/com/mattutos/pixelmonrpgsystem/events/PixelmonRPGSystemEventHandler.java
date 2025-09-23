@@ -172,12 +172,7 @@ public class PixelmonRPGSystemEventHandler {
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
     }
-
-    @SubscribeEvent
-    public void onAttackEventUse(AttackEvent.Use event) {
-        log.info(event.user.getStats().getAttack() + " AQUI PORRA " + event.user.getDisplayName().getString());
-    }
-
+    
     private void limitTempPokemonLevel(BattleParticipant[] team) {
         for (var participant : team) {
             if (participant instanceof PlayerParticipant playerPart) {
