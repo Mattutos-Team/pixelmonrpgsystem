@@ -35,5 +35,12 @@
   "config.jade.plugin_pixelmonrpgsystem.pixelmon_entity": "Pixelmon Entity",
   "pixelmonrpgsystem.jade.pixelmon.form": "Form: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.palette": "Palette: %1$s",
-  "pixelmonrpgsystem.jade.pixelmon.gen": "Gen: %1$s"
+  "pixelmonrpgsystem.jade.pixelmon.gen": "Gen: %1$s",
+
+  "item.pixelmonrpgsystem.mastery_badge": "Mastery Badge",
+  "pixelmonrpgsystem.mastery.novato": "Novice",
+  "pixelmonrpgsystem.mastery.aspirante": "Aspirant",
+  "pixelmonrpgsystem.mastery.experiente": "Experienced",
+  "pixelmonrpgsystem.mastery.mestre": "Master"
+
 }

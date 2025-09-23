@@ -4,13 +4,15 @@ import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.experience.ExperienceSource;
 import com.mattutos.pixelmonrpgsystem.experience.RPGExperienceManager;
+import com.mattutos.pixelmonrpgsystem.mastery.MasteryManager;
+import com.mattutos.pixelmonrpgsystem.mastery.MasteryStatusBase;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.LevelUpEvent;
+import com.pixelmonmod.pixelmon.api.events.battles.AttackEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
-import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
@@ -19,8 +21,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PixelmonRPGSystemEventHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(PixelmonRPGSystemEventHandler.class);
 
     @SubscribeEvent
     public void onPokemonGainExperience(ExperienceGainEvent event) {
@@ -30,6 +36,18 @@ public class PixelmonRPGSystemEventHandler {
             RPGExperienceManager.addExperience(serverPlayer, playerXP, ExperienceSource.POKEMON_BATTLE);
 
             limitXpGainedFromPokemonByPlayerLevel(event);
+
+            if (event.getExperience() > 0) {
+                try {
+                    Pokemon faintedPokemon = event.getFaintedPokemon();
+                    if (faintedPokemon != null) {
+                        MasteryManager.addBattleVictoryXp(serverPlayer, faintedPokemon);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error adding mastery XP from battle victory: " + e.getMessage()); // (important-comment)
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -68,6 +86,12 @@ public class PixelmonRPGSystemEventHandler {
         if (Config.ENABLE_CAPTURE_RESTRICTIONS.get()) {
             ServerPlayer player = event.getPlayer();
             gainXpFromCapturedPokemon(player, event.getPokemon());
+            try {
+                MasteryManager.addCaptureXp(player, event.getPokemon());
+            } catch (Exception e) {
+                System.err.println("Error adding mastery XP from capture: " + e.getMessage()); // (important-comment)
+                e.printStackTrace();
+            }
         }
     }
 
@@ -114,6 +138,27 @@ public class PixelmonRPGSystemEventHandler {
                     }
 
                     event.getCaptureValues().setCatchRate(debufCacthRate);
+                } else {
+                    try {
+                        double masteryBonus = MasteryManager.getMasteryBonus(data, event.getPokemon());
+                        if (masteryBonus > 0) {
+                            int catchRate = event.getCaptureValues().getCatchRate();
+                            int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
+
+                            Pokemon faintedPokemon = event.getPokemon();
+                            String pokemonType = String.valueOf(MasteryManager.getPokemonTypes(faintedPokemon).getFirst());
+
+                            player.sendSystemMessage(Component.literal(
+                                    "§aBônus de §b" + (int) masteryBonus + "% §ana taxa de captura por Maestria do tipo §e"
+                                            + MasteryManager.getTypeDisplayName(pokemonType) + "§a!"
+                            ));
+
+                            event.getCaptureValues().setCatchRate(bonusCatchRate);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error calculating mastery bonus for capture: " + e.getMessage()); // (important-comment)
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -127,7 +172,7 @@ public class PixelmonRPGSystemEventHandler {
         recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
         recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
     }
-
+    
     private void limitTempPokemonLevel(BattleParticipant[] team) {
         for (var participant : team) {
             if (participant instanceof PlayerParticipant playerPart) {
@@ -148,7 +193,7 @@ public class PixelmonRPGSystemEventHandler {
         }
     }
 
-    private void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
+    public void recalculateStatsBasedOnPlayerLevel(BattleParticipant[] team) {
         for (var participant : team) {
             if (participant instanceof PlayerParticipant playerPart) {
                 ServerPlayer player = (ServerPlayer) playerPart.getEntity();
@@ -156,24 +201,18 @@ public class PixelmonRPGSystemEventHandler {
                 PlayerRPGCapability rpg = CapabilitiesRegistry.getPlayerRPGCapability(player);
 
                 if (rpg != null) {
-                    int level = rpg.getLevel();
-                    double multiplier = 1.0 + (level / 10) * 0.05;
-                    if (multiplier > 1.5) multiplier = 1.5;
+                    for (PixelmonWrapper pw : playerPart.allPokemon) {
+                        double masteryBonus = MasteryManager.getMasteryBonus(rpg, pw) / 100;
+                        double multiplier = 1.0 + masteryBonus;
 
-                    // TODO - should get the list of PixelmonWrapper from the battle
-                    for (Pokemon pokemon : playerPart.getStorage().getTeam()) {
-                        if (pokemon == null) continue;
-                        PermanentStats stats = pokemon.getStats();
+                        log.info("Aplicando bonus de maestria de " + masteryBonus + "% para " + pw.getDisplayName().getString());
 
-                        stats.setAttack((int) (stats.getAttack() * multiplier));
-                        stats.setDefense((int) (stats.getDefense() * multiplier));
-                        stats.setSpecialAttack((int) (stats.getSpecialAttack() * multiplier));
-                        stats.setSpecialDefense((int) (stats.getSpecialDefense() * multiplier));
-                        stats.setSpeed((int) (stats.getSpeed() * multiplier));
-                        stats.setHP((int) (stats.getHP() * multiplier));
+                        MasteryStatusBase masteryStatusBase = new MasteryStatusBase(multiplier);
+                        pw.addStatus(masteryStatusBase, pw);
                     }
                 }
             }
         }
     }
+
 }

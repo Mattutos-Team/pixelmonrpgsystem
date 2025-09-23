@@ -45,6 +45,30 @@ public class Config {
             .comment("Enable warnings when using Pokémon above the player's level")
             .define("enableBattleRestrictions", true);
 
+    public static final ModConfigSpec.IntValue MASTERY_XP_CAPTURE = BUILDER
+            .comment("XP gained for capturing a Pokémon")
+            .defineInRange("masteryXpCapture", 20, 1, 1000);
+
+    public static final ModConfigSpec.IntValue MASTERY_XP_VICTORY = BUILDER
+            .comment("XP gained for winning a battle")
+            .defineInRange("masteryXpVictory", 30, 1, 1000);
+
+    public static final ModConfigSpec.BooleanValue MASTERY_DUAL_TYPE_XP = BUILDER
+            .comment("Whether dual-type Pokémon grant XP to both types")
+            .define("masteryDualTypeXp", true);
+
+    public static final ModConfigSpec.DoubleValue MASTERY_ASPIRANTE_BONUS = BUILDER
+            .comment("Bonus percentage for Aspirante mastery level")
+            .defineInRange("masteryAspiranteBonus", 5.0, 0.0, 100.0);
+
+    public static final ModConfigSpec.DoubleValue MASTERY_EXPERIENTE_BONUS = BUILDER
+            .comment("Bonus percentage for Experiente mastery level")
+            .defineInRange("masteryExperienteBonus", 7.5, 0.0, 100.0);
+
+    public static final ModConfigSpec.DoubleValue MASTERY_MESTRE_BONUS = BUILDER
+            .comment("Bonus percentage for Mestre mastery level")
+            .defineInRange("masteryMestreBonus", 10.0, 0.0, 100.0);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static boolean validateItemName(final Object obj) {

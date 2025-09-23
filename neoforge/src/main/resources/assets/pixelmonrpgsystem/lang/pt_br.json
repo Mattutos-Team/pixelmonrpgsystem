@@ -36,5 +36,11 @@
   "pixelmonrpgsystem.jade.pixelmon.caught": "Capturado: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.form": "Forma: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.palette": "Paleta: %1$s",
-  "pixelmonrpgsystem.jade.pixelmon.gen": "Geração: %1$s"
+  "pixelmonrpgsystem.jade.pixelmon.gen": "Geração: %1$s",
+
+  "item.pixelmonrpgsystem.mastery_badge": "Ensignia de Maestria",
+  "pixelmonrpgsystem.mastery.novato": "Novato",
+  "pixelmonrpgsystem.mastery.aspirante": "Aspirante",
+  "pixelmonrpgsystem.mastery.experiente": "Experiente",
+  "pixelmonrpgsystem.mastery.mestre": "Mestre"
 }

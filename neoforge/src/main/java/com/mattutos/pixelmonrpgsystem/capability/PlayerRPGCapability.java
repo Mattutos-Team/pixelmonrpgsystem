@@ -57,6 +57,33 @@ public class PlayerRPGCapability {
         return data.getLastDailyReward();
     }
 
+    public com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress getMastery(String type) {
+        return data.getMastery(type);
+    }
+
+    public void addMasteryXp(String type, int xp) {
+        data.addMasteryXp(type, xp);
+        saveToEntity();
+    }
+
+    public int getCurrentMasteryStage(String type) {
+        return data.getMastery(type).getStage();
+    }
+
+    public java.util.Map<String, com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress> getAllMasteries() {
+        return data.getAllMasteries();
+    }
+
+    public void setMastery(String type, String masteryLevel) {
+        data.setMastery(type, masteryLevel);
+        saveToEntity();
+    }
+
+    public void resetAllMasteries() {
+        data.resetAllMasteries();
+        saveToEntity();
+    }
+
     public void saveToEntity() {
         entity.setData(AttachmentsRegistry.PLAYER_RPG_DATA.get(), data);
     }
