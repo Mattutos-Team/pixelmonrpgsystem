@@ -1,6 +1,7 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
 import com.mattutos.pixelmonrpgsystem.registry.AttachmentsRegistry;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
 public class PlayerRPGCapability {
@@ -15,7 +16,7 @@ public class PlayerRPGCapability {
 
     public void addExperience(int xp) {
         data.addExperience(xp);
-        saveToEntity(entity);
+        saveToEntity();
     }
 
     public int getExperience() {
@@ -40,7 +41,7 @@ public class PlayerRPGCapability {
 
     public void setLevel(int level) {
         data.setLevel(level);
-        saveToEntity(entity);
+        saveToEntity();
     }
 
     public boolean canClaimDailyReward() {
@@ -49,7 +50,7 @@ public class PlayerRPGCapability {
 
     public void claimDailyReward() {
         data.claimDailyReward();
-        saveToEntity(entity);
+        saveToEntity();
     }
 
     public long getLastDailyReward() {
@@ -62,7 +63,7 @@ public class PlayerRPGCapability {
 
     public void addMasteryXp(String type, int xp) {
         data.addMasteryXp(type, xp);
-        saveToEntity(entity);
+        saveToEntity();
     }
 
     public int getCurrentMasteryStage(String type) {
@@ -75,17 +76,24 @@ public class PlayerRPGCapability {
 
     public void setMastery(String type, String masteryLevel) {
         data.setMastery(type, masteryLevel);
-        saveToEntity(entity);
+        saveToEntity();
     }
 
     public void resetAllMasteries() {
         data.resetAllMasteries();
-        saveToEntity(entity);
+        saveToEntity();
     }
 
-    public void saveToEntity(LivingEntity entity) {
+    public void saveToEntity() {
         entity.setData(AttachmentsRegistry.PLAYER_RPG_DATA.get(), data);
     }
 
+    public void copyTo(ServerPlayer other) {
+        PlayerRPGData clone = this.data.clone();
+
+        PlayerRPGCapability playerRPGCapability = new PlayerRPGCapability(other);
+        playerRPGCapability.data = clone;
+        playerRPGCapability.saveToEntity();
+    }
 
 }

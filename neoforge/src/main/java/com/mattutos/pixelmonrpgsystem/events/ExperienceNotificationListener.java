@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 @EventBusSubscriber(modid = PixelmonRPGSystem.MODID)
 public class ExperienceNotificationListener {
@@ -43,5 +44,16 @@ public class ExperienceNotificationListener {
         };
 
         player.sendSystemMessage(Component.translatable(messageKey, experienceGained));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        if (!event.isWasDeath()) return; // só clonar se foi morte
+
+        if (event.getOriginal() instanceof ServerPlayer oldPlayer && event.getEntity() instanceof ServerPlayer newPlayer) {
+            PlayerRPGCapability oldData = CapabilitiesRegistry.getPlayerRPGCapability(oldPlayer);
+
+            oldData.copyTo(newPlayer);
+        }
     }
 }

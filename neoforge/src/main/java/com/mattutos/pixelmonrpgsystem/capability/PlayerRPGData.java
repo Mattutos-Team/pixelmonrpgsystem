@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class PlayerRPGData implements INBTSerializable<CompoundTag> {
+public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
@@ -82,13 +82,13 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         tag.putInt("experience", experience);
         tag.putInt("level", level);
         tag.putLong("lastDailyReward", lastDailyReward);
-        
+
         CompoundTag masteriesTag = new CompoundTag();
         for (Map.Entry<String, MasteryProgress> entry : masteries.entrySet()) {
             masteriesTag.put(entry.getKey(), entry.getValue().serializeNBT(provider));
         }
         tag.put("masteries", masteriesTag);
-        
+
         return tag;
     }
 
@@ -97,7 +97,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
         experience = tag.getInt("experience");
         level = tag.getInt("level");
         lastDailyReward = tag.getLong("lastDailyReward");
-        
+
         masteries.clear();
         if (tag.contains("masteries")) {
             CompoundTag masteriesTag = tag.getCompound("masteries");
@@ -178,5 +178,16 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag> {
 
     private String normalizeType(String type) {
         return type == null ? "" : type.toLowerCase();
+    }
+
+    @Override
+    public PlayerRPGData clone() {
+        PlayerRPGData clone = new PlayerRPGData();
+
+        clone.experience = this.experience;
+        clone.level = this.level;
+        clone.lastDailyReward = this.lastDailyReward;
+
+        return clone;
     }
 }
