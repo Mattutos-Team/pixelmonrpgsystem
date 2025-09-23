@@ -6,6 +6,7 @@ import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,15 +97,14 @@ public class MasteryManager {
     }
 
 
-    public static double getMasteryBonus(ServerPlayer player, Pokemon pokemon) {
-        PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
-        if (data == null) return 0.0;
+    public static double getMasteryBonus(PlayerRPGCapability player, Pokemon pokemon) {
+        if (player == null) return 0.0;
 
         List<String> types = getPokemonTypes(pokemon);
         double maxBonus = 0.0;
 
         for (String type : types) {
-            MasteryProgress mastery = data.getMastery(type);
+            MasteryProgress mastery = player.getMastery(type);
             double bonus = mastery.getBonusPercentage();
             maxBonus = Math.max(maxBonus, bonus);
         }
