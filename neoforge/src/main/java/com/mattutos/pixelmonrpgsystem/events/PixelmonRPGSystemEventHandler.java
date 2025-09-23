@@ -11,7 +11,6 @@ import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.LevelUpEvent;
 import com.pixelmonmod.pixelmon.api.events.battles.BattleStartedEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
-import com.pixelmonmod.pixelmon.api.pokemon.stats.PermanentStats;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PlayerParticipant;
@@ -164,8 +163,8 @@ public class PixelmonRPGSystemEventHandler {
         limitTempPokemonLevel(event.getTeamOne());
         limitTempPokemonLevel(event.getTeamTwo());
 
-        // Removed recalculateStatsBasedOnPlayerLevel calls to fix client crash
-        // Battle stat bonuses temporarily disabled until safe PixelmonWrapper implementation found
+//        recalculateStatsBasedOnPlayerLevel(event.getTeamOne());
+//        recalculateStatsBasedOnPlayerLevel(event.getTeamTwo());
     }
 
     private void limitTempPokemonLevel(BattleParticipant[] team) {
