@@ -2,6 +2,7 @@ package com.mattutos.pixelmonrpgsystem.capability;
 
 import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
+import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
 import com.pixelmonmod.pixelmon.api.pokemon.ExperienceGroup;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
     private long lastDailyReward = 0;
-    private Map<String, MasteryProgress> masteries = new HashMap<>();
+    private final Map<TypeHelper, MasteryProgress> masteries = new HashMap<>();
 
     public static int getExperienceForThisLevel(int level) {
 //        return (level * level * 100) + 100;
@@ -84,9 +85,9 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         tag.putLong("lastDailyReward", lastDailyReward);
 
         CompoundTag masteriesTag = new CompoundTag();
-        for (Map.Entry<String, MasteryProgress> entry : masteries.entrySet()) {
-            masteriesTag.put(entry.getKey(), entry.getValue().serializeNBT(provider));
-        }
+        masteries.forEach((key, value) -> {
+            masteriesTag.put(key.name(), value.serializeNBT(provider));
+        });
         tag.put("masteries", masteriesTag);
 
         return tag;
@@ -104,7 +105,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
             for (String key : masteriesTag.getAllKeys()) {
                 MasteryProgress progress = new MasteryProgress();
                 progress.deserializeNBT(provider, masteriesTag.getCompound(key));
-                masteries.put(key, progress);
+                masteries.put(TypeHelper.of(key), progress);
             }
         }
     }
@@ -124,33 +125,24 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         return lastDailyReward;
     }
 
-    public MasteryProgress getMastery(String type) {
-        String normalized = normalizeType(type);
-        if (!isValidType(normalized)) {
-            throw new IllegalArgumentException("Tipo inválido de maestria: " + type);
-        }
-        return masteries.computeIfAbsent(normalized, k -> new MasteryProgress());
+    public MasteryProgress getMastery(TypeHelper type) {
+        return masteries.computeIfAbsent(type, k -> new MasteryProgress());
     }
 
-    public void addMasteryXp(String type, int xp) {
-        String normalized = normalizeType(type);
-        if (!isValidType(normalized)) {
-            throw new IllegalArgumentException("Tipo inválido de maestria: " + type);
-        }
-
-        int currentXp = getMastery(normalized).getXp();
-        int currentLevel = getMastery(normalized).getStage();
+    public void addMasteryXp(TypeHelper type, int xp) {
+        int currentXp = getMastery(type).getXp();
+        int currentLevel = getMastery(type).getStage();
 
         if (level >= 30 && (currentLevel < 3 || (currentLevel == 3 && currentXp < 4000))) {
-            getMastery(normalized).addXp(xp);
+            getMastery(type).addXp(xp);
         }
     }
 
-    public Map<String, MasteryProgress> getAllMasteries() {
+    public Map<TypeHelper, MasteryProgress> getAllMasteries() {
         return masteries;
     }
 
-    public void setMastery(String type, String masteryLevel) {
+    public void setMastery(TypeHelper type, String masteryLevel) {
         MasteryProgress progress = getMastery(type);
         switch (masteryLevel.toLowerCase()) {
             case "novato" -> progress.setStageAndXp(0, 0);
@@ -164,20 +156,6 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
 
     public void resetAllMasteries() {
         masteries.clear();
-    }
-
-    private static final Set<String> VALID_TYPES = Set.of(
-            "fire", "water", "grass", "electric", "psychic", "ice", "dragon",
-            "dark", "fairy", "fighting", "poison", "ground", "flying",
-            "bug", "rock", "ghost", "steel", "normal"
-    );
-
-    private boolean isValidType(String type) {
-        return VALID_TYPES.contains(type);
-    }
-
-    private String normalizeType(String type) {
-        return type == null ? "" : type.toLowerCase();
     }
 
     @Override

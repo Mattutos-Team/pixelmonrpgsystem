@@ -15,17 +15,16 @@ public class MasteryStatusBase extends StatusBase {
 
     @Override
     public int[] modifyBaseStats(PixelmonWrapper user, int[] stats) {
-        stats[BattleStatsType.ATTACK.getStatIndex()] = applyMultiplier(stats, BattleStatsType.ATTACK);
-        stats[BattleStatsType.DEFENSE.getStatIndex()] = applyMultiplier(stats, BattleStatsType.DEFENSE);
-        stats[BattleStatsType.SPECIAL_ATTACK.getStatIndex()] = applyMultiplier(stats, BattleStatsType.SPECIAL_ATTACK);
-        stats[BattleStatsType.SPECIAL_DEFENSE.getStatIndex()] = applyMultiplier(stats, BattleStatsType.SPECIAL_DEFENSE);
-        stats[BattleStatsType.SPEED.getStatIndex()] = applyMultiplier(stats, BattleStatsType.SPEED);
+        applyMultiplier(stats, BattleStatsType.ATTACK);
+        applyMultiplier(stats, BattleStatsType.DEFENSE);
+        applyMultiplier(stats, BattleStatsType.SPECIAL_ATTACK);
+        applyMultiplier(stats, BattleStatsType.SPECIAL_DEFENSE);
+        applyMultiplier(stats, BattleStatsType.SPEED);
         return stats;
     }
 
-    private int applyMultiplier(int[] stats, BattleStatsType type) {
-        int statsIndex = type.getStatIndex();
-        return (int) (stats[statsIndex] * multiplier);
+    private void applyMultiplier(int[] stats, BattleStatsType type) {
+        stats[type.getStatIndex()] = (int) (stats[type.getStatIndex()] * multiplier);
     }
 
 }

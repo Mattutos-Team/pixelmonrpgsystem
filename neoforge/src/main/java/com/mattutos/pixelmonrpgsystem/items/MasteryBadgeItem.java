@@ -1,9 +1,9 @@
 package com.mattutos.pixelmonrpgsystem.items;
 
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
-import com.mattutos.pixelmonrpgsystem.mastery.MasteryManager;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
+import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -39,17 +39,16 @@ public class MasteryBadgeItem extends Item {
         player.sendSystemMessage(Component.literal("§6§l=== MAESTRIAS POKÉMON ==="));
         player.sendSystemMessage(Component.literal(""));
 
-        Map<String, MasteryProgress> masteries = data.getAllMasteries();
-        
+        Map<TypeHelper, MasteryProgress> masteries = data.getAllMasteries();
+
         if (masteries.isEmpty()) {
             player.sendSystemMessage(Component.literal("§7Nenhuma maestria desenvolvida ainda."));
             player.sendSystemMessage(Component.literal("§7Capture Pokémon e vença batalhas para ganhar XP!"));
         } else {
-            for (Map.Entry<String, MasteryProgress> entry : masteries.entrySet()) {
-                String type = entry.getKey();
+            for (Map.Entry<TypeHelper, MasteryProgress> entry : masteries.entrySet()) {
+                TypeHelper type = entry.getKey();
                 MasteryProgress mastery = entry.getValue();
-                String displayName = MasteryManager.getTypeDisplayName(type);
-                
+
                 String stageColor = switch (mastery.getStage()) {
                     case 0 -> "§7"; // Novato - cinza
                     case 1 -> "§e"; // Aspirante - amarelo
@@ -57,10 +56,10 @@ public class MasteryBadgeItem extends Item {
                     case 3 -> "§d"; // Mestre - roxo
                     default -> "§f";
                 };
-                
-                player.sendSystemMessage(Component.literal("§6" + displayName + ": " + stageColor + mastery.getStageName()));
+
+                player.sendSystemMessage(Component.literal("§6" + type.translatedComponent() + ": " + stageColor + mastery.getStageName()));
                 player.sendSystemMessage(Component.literal("  §eXP: §f" + mastery.getXp() + " / " + mastery.getXpForNextStage()));
-                
+
                 double bonus = mastery.getBonusPercentage();
                 if (bonus > 0) {
                     player.sendSystemMessage(Component.literal("  §eBônus: §a+" + bonus + "%"));
@@ -70,7 +69,7 @@ public class MasteryBadgeItem extends Item {
                 player.sendSystemMessage(Component.literal(""));
             }
         }
-        
+
         player.sendSystemMessage(Component.literal("§7Use /maestria {tipo} para detalhes específicos"));
         player.sendSystemMessage(Component.literal("§6§l========================"));
     }

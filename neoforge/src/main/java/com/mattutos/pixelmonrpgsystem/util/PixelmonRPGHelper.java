@@ -27,7 +27,7 @@ public class PixelmonRPGHelper {
 
     public static List<TypeHelper> getPokemonTypesHelper(Pokemon pokemon) {
         return pokemon.getForm().getTypes().stream()
-                .map(h -> new TypeHelper(h.unwrapKey().get().location().getPath(), h.value()))
+                .map(TypeHelper::new)
                 .toList();
     }
 }

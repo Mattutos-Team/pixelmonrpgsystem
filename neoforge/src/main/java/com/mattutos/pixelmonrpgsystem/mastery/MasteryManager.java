@@ -3,10 +3,12 @@ package com.mattutos.pixelmonrpgsystem.mastery;
 import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
+import com.mattutos.pixelmonrpgsystem.util.PixelmonRPGHelper;
+import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +44,11 @@ public class MasteryManager {
         PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
         if (data == null || data.getLevel() < 30) return;
 
-        List<String> types = getPokemonTypes(pokemon);
+        List<TypeHelper> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
         int xpAmount = Config.MASTERY_XP_CAPTURE.get();
-        String typeDisplay = getTypeDisplayName(types.getFirst());
 
 
-        for (String type : types) {
+        for (TypeHelper type : types) {
             int currentMasteryExp = data.getCurrentMasteryStage(type);
             if (data.getMastery(type) == null) continue;
 
@@ -55,7 +56,7 @@ public class MasteryManager {
 
             player.sendSystemMessage(Component.literal(
                     "§aVocê ganhou §b" + xpAmount + " XP §ade Maestria do tipo §e"
-                            + typeDisplay + " §apor capturar §b" + pokemon.getDisplayName().getString() + "§a!"
+                            + type.translatedComponent() + " §apor capturar §b" + pokemon.getDisplayName().getString() + "§a!"
             ));
 
             data.addMasteryXp(type, xpAmount);
@@ -69,19 +70,19 @@ public class MasteryManager {
         PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
         if (data == null || data.getLevel() < 30) return;
 
-        List<String> types = getPokemonTypes(defeatedPokemon);
+        List<TypeHelper> types = PixelmonRPGHelper.getPokemonTypesHelper(defeatedPokemon);
         if (types.isEmpty()) return;
 
         int xpAmount = Config.MASTERY_XP_VICTORY.get();
         int splitXp = xpAmount / types.size();
 
-        for (String type : types) {
+        for (TypeHelper type : types) {
             if (data.getMastery(type) == null) continue;
 
             int currentMasteryStage = data.getCurrentMasteryStage(type);
             if (currentMasteryStage >= 3) continue;
 
-            String typeDisplay = getTypeDisplayName(type);
+            MutableComponent typeDisplay = type.translatedComponent();
 
             player.sendSystemMessage(Component.literal(
                     "§aVocê ganhou §b" + splitXp + " XP §ade Maestria do tipo §e"
@@ -96,14 +97,13 @@ public class MasteryManager {
         }
     }
 
-
     public static double getMasteryBonus(PlayerRPGCapability player, Pokemon pokemon) {
         if (player == null) return 0.0;
 
-        List<String> types = getPokemonTypes(pokemon);
+        List<TypeHelper> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
         double maxBonus = 0.0;
 
-        for (String type : types) {
+        for (TypeHelper type : types) {
             MasteryProgress mastery = player.getMastery(type);
             double bonus = mastery.getBonusPercentage();
             maxBonus = Math.max(maxBonus, bonus);
@@ -112,27 +112,4 @@ public class MasteryManager {
         return maxBonus;
     }
 
-    public static String getTypeDisplayName(String type) {
-        return switch (type.toLowerCase()) {
-            case "fire" -> "Fogo";
-            case "water" -> "Agua";
-            case "grass" -> "Grama";
-            case "electric" -> "Eletrico";
-            case "psychic" -> "Psiquico";
-            case "ice" -> "Gelo";
-            case "dragon" -> "Dragao";
-            case "dark" -> "Sombrio";
-            case "fairy" -> "Fada";
-            case "fighting" -> "Lutador";
-            case "poison" -> "Venenoso";
-            case "ground" -> "Terra";
-            case "flying" -> "Voador";
-            case "bug" -> "Inseto";
-            case "rock" -> "Pedra";
-            case "ghost" -> "Fantasma";
-            case "steel" -> "Aco";
-            case "normal" -> "Normal";
-            default -> type.substring(0, 1).toUpperCase() + type.substring(1);
-        };
-    }
 }

@@ -1,8 +1,12 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
+import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
 import com.mattutos.pixelmonrpgsystem.registry.AttachmentsRegistry;
+import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+
+import java.util.Map;
 
 public class PlayerRPGCapability {
 
@@ -57,24 +61,24 @@ public class PlayerRPGCapability {
         return data.getLastDailyReward();
     }
 
-    public com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress getMastery(String type) {
+    public MasteryProgress getMastery(TypeHelper type) {
         return data.getMastery(type);
     }
 
-    public void addMasteryXp(String type, int xp) {
+    public void addMasteryXp(TypeHelper type, int xp) {
         data.addMasteryXp(type, xp);
         saveToEntity();
     }
 
-    public int getCurrentMasteryStage(String type) {
+    public int getCurrentMasteryStage(TypeHelper type) {
         return data.getMastery(type).getStage();
     }
 
-    public java.util.Map<String, com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress> getAllMasteries() {
+    public Map<TypeHelper, MasteryProgress> getAllMasteries() {
         return data.getAllMasteries();
     }
 
-    public void setMastery(String type, String masteryLevel) {
+    public void setMastery(TypeHelper type, String masteryLevel) {
         data.setMastery(type, masteryLevel);
         saveToEntity();
     }
