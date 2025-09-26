@@ -5,15 +5,21 @@ import com.mattutos.pixelmonrpgsystem.enums.MasteryType;
 import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.server.command.EnumArgument;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
+import java.util.Map;
 
 public class MasteryCommand {
 
@@ -21,12 +27,52 @@ public class MasteryCommand {
         LiteralArgumentBuilder<CommandSourceStack> argumentBuilder = Commands.literal("mastery")
                 .then(commandMasteryType())
                 .then(commandMasteryAdmin())
-                .executes(context -> {
-                    context.getSource().sendFailure(Component.literal("§cUso: /mastery {type} ou /mastery admin {player} set {type} {level} ou /mastery admin {player} reset"));
-                    return 0;
-                });
+                .executes(commandMasteryListAll());
 
         dispatcher.register(argumentBuilder);
+    }
+
+    private static @NotNull Command<CommandSourceStack> commandMasteryListAll() {
+        return context -> {
+            CommandSourceStack source = context.getSource();
+
+            if (!(source.getEntity() instanceof ServerPlayer player)) {
+                source.sendFailure(Component.translatable("command.mastery.only_players").withStyle(ChatFormatting.RED));
+                return 0;
+            }
+
+            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
+            Map<PixelmonType, MasteryProgress> masteries = data.getAllMasteries();
+
+            player.sendSystemMessage(Component.literal("§6§l=== MAESTRIAS POKÉMON ==="));
+            player.sendSystemMessage(Component.literal(""));
+
+            if (masteries.isEmpty()) {
+                player.sendSystemMessage(Component.literal("§7Nenhuma maestria desenvolvida ainda."));
+                player.sendSystemMessage(Component.literal("§7Capture Pokémon e vença batalhas para ganhar XP!"));
+            } else {
+                for (Map.Entry<PixelmonType, MasteryProgress> entry : masteries.entrySet()) {
+                    PixelmonType pixelmonType = entry.getKey();
+                    MasteryProgress mastery = entry.getValue();
+
+                    MasteryType masteryType = mastery.getStageName();
+                    player.sendSystemMessage(pixelmonType.translatedComponent().withStyle(ChatFormatting.GOLD).append(": ").append(masteryType.translatedComponent().withStyle(masteryType.getColor())));
+                    player.sendSystemMessage(Component.literal("  §eXP: §f" + mastery.getXp() + " / " + mastery.getXpForNextStage()));
+
+                    double bonus = mastery.getBonusPercentage();
+                    if (bonus > 0) {
+                        player.sendSystemMessage(Component.literal("  §eBônus: §a+" + bonus + "%"));
+                    } else {
+                        player.sendSystemMessage(Component.literal("  §eBônus: §7Nenhum"));
+                    }
+                    player.sendSystemMessage(Component.literal(""));
+                }
+            }
+
+            player.sendSystemMessage(Component.literal("§7Use /maestria {tipo} para detalhes específicos"));
+            player.sendSystemMessage(Component.literal("§6§l========================"));
+            return 0;
+        };
     }
 
     private static RequiredArgumentBuilder<CommandSourceStack, PixelmonType> commandMasteryType() {
@@ -35,7 +81,7 @@ public class MasteryCommand {
                     CommandSourceStack source = context.getSource();
 
                     if (!(source.getEntity() instanceof ServerPlayer player)) {
-                        source.sendFailure(Component.literal("§cApenas jogadores podem usar este comando"));
+                        source.sendFailure(Component.translatable("command.mastery.only_players").withStyle(ChatFormatting.RED));
                         return 0;
                     }
 
@@ -43,21 +89,45 @@ public class MasteryCommand {
                     PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
 
                     if (data == null) {
-                        source.sendFailure(Component.literal("§cErro ao acessar dados do jogador"));
+                        source.sendFailure(Component.translatable("command.mastery.error.access_data").withStyle(ChatFormatting.RED));
                         return 0;
                     }
 
                     MasteryProgress mastery = data.getMastery(pixelmonType);
 
-                    player.sendSystemMessage(Component.literal("§6[Maestria - ").append(pixelmonType.translatedComponent()).append("]"));
-                    player.sendSystemMessage(Component.literal("§eNível: §f" + mastery.getStageName()));
-                    player.sendSystemMessage(Component.literal("§eXP: §f" + mastery.getXp() + " / " + mastery.getXpForNextStage()));
+                    // Cabeçalho: toda a linha em dourado; o %s (pixelmonType) é passado como Component.
+                    player.sendSystemMessage(
+                            Component.translatable("command.mastery.header", pixelmonType.translatedComponent())
+                                    .withStyle(ChatFormatting.GOLD)
+                    );
 
+                    // Nível: label em amarelo, valor em branco
+                    player.sendSystemMessage(
+                            Component.translatable("command.mastery.level", mastery.getStageName().translatedComponent().withStyle(ChatFormatting.WHITE))
+                                    .withStyle(ChatFormatting.YELLOW)
+                    );
+
+                    // XP atual / próximo: label em amarelo, valores em branco
+                    player.sendSystemMessage(
+                            Component.translatable("command.mastery.xp",
+                                    Component.literal(String.valueOf(mastery.getXp())).withStyle(ChatFormatting.WHITE),
+                                    Component.literal(String.valueOf(mastery.getXpForNextStage())).withStyle(ChatFormatting.WHITE)
+                            ).withStyle(ChatFormatting.YELLOW)
+                    );
+
+                    // Bônus: formatado com 1 casa decimal; label amarelo + valor verde (ou mensagem "Nenhum")
                     double bonus = mastery.getBonusPercentage();
                     if (bonus > 0) {
-                        player.sendSystemMessage(Component.literal("§eBônus atual: §a+" + bonus + "% em batalha e captura"));
+                        String bonusStr = String.format(Locale.ROOT, "%.1f", bonus);
+                        player.sendSystemMessage(
+                                Component.translatable("command.mastery.bonus", Component.literal(bonusStr).withStyle(ChatFormatting.GREEN))
+                                        .withStyle(ChatFormatting.YELLOW)
+                        );
                     } else {
-                        player.sendSystemMessage(Component.literal("§eBônus atual: §7Nenhum"));
+                        player.sendSystemMessage(
+                                Component.translatable("command.mastery.bonus_none")
+                                        .withStyle(ChatFormatting.YELLOW)
+                        );
                     }
 
                     return 1;
@@ -79,14 +149,26 @@ public class MasteryCommand {
 
                                                     PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(targetPlayer);
                                                     if (data == null) {
-                                                        source.sendFailure(Component.literal("§cErro ao acessar dados do jogador"));
+                                                        source.sendFailure(Component.translatable("command.mastery.error.access_data").withStyle(ChatFormatting.RED));
                                                         return 0;
                                                     }
 
                                                     data.setMastery(pixelmonType, masteryLevel);
 
-                                                    targetPlayer.sendSystemMessage(Component.literal("§6Sua maestria de " + pixelmonType.translatedComponent() + " foi definida para " + masteryLevel.translatedComponent() + "!"));
-                                                    source.sendSuccess(() -> Component.literal("§aMaestria de " + pixelmonType.translatedComponent() + " de " + targetPlayer.getName().getString() + " definida para " + masteryLevel.translatedComponent()), true);
+                                                    // Mensagem para o player alvo (dourado)
+                                                    targetPlayer.sendSystemMessage(
+                                                            Component.translatable("command.mastery.set_target", pixelmonType.translatedComponent(), masteryLevel.translatedComponent())
+                                                                    .withStyle(ChatFormatting.GOLD)
+                                                    );
+
+                                                    // Mensagem de sucesso para o executor (verde)
+                                                    source.sendSuccess(() ->
+                                                                    Component.translatable("command.mastery.set_success",
+                                                                            pixelmonType.translatedComponent(),
+                                                                            targetPlayer.getName(), // componente do próprio jogador
+                                                                            masteryLevel.translatedComponent()
+                                                                    ).withStyle(ChatFormatting.GREEN)
+                                                            , true);
 
                                                     return 1;
                                                 })
@@ -100,16 +182,28 @@ public class MasteryCommand {
 
                                     PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(targetPlayer);
                                     if (data == null) {
-                                        source.sendFailure(Component.literal("§cErro ao acessar dados do jogador"));
+                                        source.sendFailure(Component.translatable("command.mastery.error.access_data").withStyle(ChatFormatting.RED));
                                         return 0;
                                     }
 
                                     data.resetAllMasteries();
-                                    targetPlayer.sendSystemMessage(Component.literal("§6Todas as suas maestrias foram resetadas!"));
-                                    source.sendSuccess(() -> Component.literal("§aTodas as maestrias de " + targetPlayer.getName().getString() + " foram resetadas"), true);
+
+                                    // Aviso para o player alvo (dourado)
+                                    targetPlayer.sendSystemMessage(
+                                            Component.translatable("command.mastery.reset_target")
+                                                    .withStyle(ChatFormatting.GOLD)
+                                    );
+
+                                    // Sucesso para o executor (verde), enviando o nome do jogador como Component
+                                    source.sendSuccess(() ->
+                                                    Component.translatable("command.mastery.reset_success", targetPlayer.getName())
+                                                            .withStyle(ChatFormatting.GREEN)
+                                            , true);
+
                                     return 1;
                                 })
                         )
                 );
     }
+
 }

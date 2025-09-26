@@ -41,5 +41,18 @@
   "pixelmonrpgsystem.mastery.type.novice": "Novato",
   "pixelmonrpgsystem.mastery.type.aspirant": "Aspirante",
   "pixelmonrpgsystem.mastery.type.expert": "Especialista",
-  "pixelmonrpgsystem.mastery.type.master": "Mestre"
+  "pixelmonrpgsystem.mastery.type.master": "Mestre",
+
+  "command.mastery.usage": "Uso: /mastery {type} ou /mastery admin {player} set {type} {level} ou /mastery admin {player} reset",
+  "command.mastery.only_players": "Apenas jogadores podem usar este comando",
+  "command.mastery.error.access_data": "Erro ao acessar os dados do jogador",
+  "command.mastery.header": "[Maestria - %s]",
+  "command.mastery.level": "Nível: %s",
+  "command.mastery.xp": "XP: %s / %s",
+  "command.mastery.bonus": "Bônus atual: +%s%% em batalha e captura",
+  "command.mastery.bonus_none": "Bônus atual: Nenhum",
+  "command.mastery.set_target": "Sua maestria de %s foi definida para %s!",
+  "command.mastery.set_success": "Maestria de %s de %s definida para %s",
+  "command.mastery.reset_target": "Todas as suas maestrias foram resetadas!",
+  "command.mastery.reset_success": "Todas as maestrias de %s foram resetadas"
 }
