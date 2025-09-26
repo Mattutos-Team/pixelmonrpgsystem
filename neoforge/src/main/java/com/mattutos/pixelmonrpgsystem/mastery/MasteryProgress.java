@@ -1,5 +1,6 @@
 package com.mattutos.pixelmonrpgsystem.mastery;
 
+import com.mattutos.pixelmonrpgsystem.enums.MasteryType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -38,14 +39,8 @@ public class MasteryProgress implements INBTSerializable<CompoundTag> {
         }
     }
 
-    public String getStageName() {
-        return switch (stage) {
-            case 0 -> "Novato";
-            case 1 -> "Aspirante";
-            case 2 -> "Experiente";
-            case 3 -> "Mestre";
-            default -> "Desconhecido";
-        };
+    public MasteryType getStageName() {
+        return MasteryType.values()[stage];
     }
 
     public void setStageAndXp(int newStage, int newXp) {

@@ -1,7 +1,9 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
 import com.mattutos.pixelmonrpgsystem.Config;
+import com.mattutos.pixelmonrpgsystem.enums.MasteryType;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.pokemon.ExperienceGroup;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -9,14 +11,14 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
+    private final Map<PixelmonType, MasteryProgress> masteries = new HashMap<>();
+
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
     private long lastDailyReward = 0;
-    private Map<String, MasteryProgress> masteries = new HashMap<>();
 
     public static int getExperienceForThisLevel(int level) {
 //        return (level * level * 100) + 100;
@@ -84,9 +86,9 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         tag.putLong("lastDailyReward", lastDailyReward);
 
         CompoundTag masteriesTag = new CompoundTag();
-        for (Map.Entry<String, MasteryProgress> entry : masteries.entrySet()) {
-            masteriesTag.put(entry.getKey(), entry.getValue().serializeNBT(provider));
-        }
+        masteries.forEach((pixelmonType, value) -> {
+            masteriesTag.put(pixelmonType.getKey(), value.serializeNBT(provider));
+        });
         tag.put("masteries", masteriesTag);
 
         return tag;
@@ -104,7 +106,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
             for (String key : masteriesTag.getAllKeys()) {
                 MasteryProgress progress = new MasteryProgress();
                 progress.deserializeNBT(provider, masteriesTag.getCompound(key));
-                masteries.put(key, progress);
+                masteries.put(PixelmonType.of(key), progress);
             }
         }
     }
@@ -124,39 +126,30 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         return lastDailyReward;
     }
 
-    public MasteryProgress getMastery(String type) {
-        String normalized = normalizeType(type);
-        if (!isValidType(normalized)) {
-            throw new IllegalArgumentException("Tipo inválido de maestria: " + type);
-        }
-        return masteries.computeIfAbsent(normalized, k -> new MasteryProgress());
+    public MasteryProgress getMastery(PixelmonType type) {
+        return masteries.computeIfAbsent(type, k -> new MasteryProgress());
     }
 
-    public void addMasteryXp(String type, int xp) {
-        String normalized = normalizeType(type);
-        if (!isValidType(normalized)) {
-            throw new IllegalArgumentException("Tipo inválido de maestria: " + type);
-        }
-
-        int currentXp = getMastery(normalized).getXp();
-        int currentLevel = getMastery(normalized).getStage();
+    public void addMasteryXp(PixelmonType type, int xp) {
+        int currentXp = getMastery(type).getXp();
+        int currentLevel = getMastery(type).getStage();
 
         if (level >= 30 && (currentLevel < 3 || (currentLevel == 3 && currentXp < 4000))) {
-            getMastery(normalized).addXp(xp);
+            getMastery(type).addXp(xp);
         }
     }
 
-    public Map<String, MasteryProgress> getAllMasteries() {
+    public Map<PixelmonType, MasteryProgress> getAllMasteries() {
         return masteries;
     }
 
-    public void setMastery(String type, String masteryLevel) {
+    public void setMastery(PixelmonType type, MasteryType masteryLevel) {
         MasteryProgress progress = getMastery(type);
-        switch (masteryLevel.toLowerCase()) {
-            case "novato" -> progress.setStageAndXp(0, 0);
-            case "aspirante" -> progress.setStageAndXp(1, 1000);
-            case "experiente" -> progress.setStageAndXp(2, 1800);
-            case "mestre" -> progress.setStageAndXp(3, 4000);
+        switch (masteryLevel) {
+            case NOVICE -> progress.setStageAndXp(0, 0);
+            case ASPIRANT -> progress.setStageAndXp(1, 1000);
+            case EXPERT -> progress.setStageAndXp(2, 1800);
+            case MASTER -> progress.setStageAndXp(3, 4000);
             default -> throw new IllegalArgumentException("Invalid mastery level: " + masteryLevel);
         }
         masteries.put(type, progress);
@@ -164,20 +157,6 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
 
     public void resetAllMasteries() {
         masteries.clear();
-    }
-
-    private static final Set<String> VALID_TYPES = Set.of(
-            "fire", "water", "grass", "electric", "psychic", "ice", "dragon",
-            "dark", "fairy", "fighting", "poison", "ground", "flying",
-            "bug", "rock", "ghost", "steel", "normal"
-    );
-
-    private boolean isValidType(String type) {
-        return VALID_TYPES.contains(type);
-    }
-
-    private String normalizeType(String type) {
-        return type == null ? "" : type.toLowerCase();
     }
 
     @Override
