@@ -43,6 +43,10 @@
   "pixelmonrpgsystem.mastery.type.expert": "Expert",
   "pixelmonrpgsystem.mastery.type.master": "Master",
 
+  "pixelmonrpgsystem.mastery.capture_message": "You gained %s XP of %s mastery for capturing %s!",
+  "pixelmonrpgsystem.mastery.victory_message": "You gained %s XP of %s mastery for defeating %s!",
+  "pixelmonrpgsystem.mastery.capture_bonus": "Bonus of %s%% to capture rate from %s mastery!",
+
   "command.mastery.usage": "Usage: /mastery {type} or /mastery admin {player} set {type} {level} or /mastery admin {player} reset",
   "command.mastery.only_players": "Only players may use this command",
   "command.mastery.error.access_data": "Error while accessing player's data",

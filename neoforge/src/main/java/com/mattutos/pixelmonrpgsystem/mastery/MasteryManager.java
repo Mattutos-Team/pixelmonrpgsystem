@@ -2,43 +2,17 @@ package com.mattutos.pixelmonrpgsystem.mastery;
 
 import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.mattutos.pixelmonrpgsystem.util.PixelmonRPGHelper;
-import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MasteryManager {
-
-    public static List<String> getPokemonTypes(Pokemon pokemon) {
-        List<String> types = new ArrayList<>();
-
-        try {
-            var pokemonTypes = pokemon.getTypes();
-            if (pokemonTypes != null) {
-                for (var typeHolder : pokemonTypes) {
-                    if (typeHolder != null && typeHolder.unwrapKey().isPresent()) {
-                        String typeName = typeHolder.unwrapKey().get().location().getPath();
-                        types.add(typeName.toLowerCase());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error extracting Pokemon types, using fallback: " + e.getMessage()); // (important-comment)
-            types.add("normal");
-        }
-
-        if (types.isEmpty()) {
-            types.add("normal");
-        }
-
-        return types;
-    }
 
     public static void addCaptureXp(ServerPlayer player, Pokemon pokemon) {
         PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
@@ -47,22 +21,28 @@ public class MasteryManager {
         List<PixelmonType> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
         int xpAmount = Config.MASTERY_XP_CAPTURE.get();
 
-
         for (PixelmonType type : types) {
-            int currentMasteryExp = data.getCurrentMasteryStage(type);
+            // se não tem maestria registrada para esse tipo, pula
             if (data.getMastery(type) == null) continue;
 
-            if (currentMasteryExp == 3) continue;
+            int currentMasteryExp = data.getCurrentMasteryStage(type);
+            // evita ultrapassar o stage máximo (uso >= por segurança)
+            if (currentMasteryExp >= 3) continue;
 
-            player.sendSystemMessage(Component.literal(
-                    "§aVocê ganhou §b" + xpAmount + " XP §ade Maestria do tipo §e"
-                            + type.translatedComponent() + " §apor capturar §b" + pokemon.getDisplayName().getString() + "§a!"
-            ));
+            // componentes estilizados para placeholders
+            Component xpComp = Component.literal(String.valueOf(xpAmount)).withStyle(ChatFormatting.AQUA);
+            Component typeComp = type.translatedComponent().withStyle(ChatFormatting.GOLD);
+            Component pokemonComp = pokemon.getDisplayName().withStyle(ChatFormatting.AQUA);
+
+            // mensagem translatable (base estilizada em verde; argumentos mantêm seus estilos)
+            player.sendSystemMessage(
+                    Component.translatable("pixelmonrpgsystem.mastery.capture_message", xpComp, typeComp, pokemonComp)
+                            .withStyle(ChatFormatting.GREEN)
+            );
 
             data.addMasteryXp(type, xpAmount);
-            if (!Config.MASTERY_DUAL_TYPE_XP.get()) {
-                break;
-            }
+
+            if (!Config.MASTERY_DUAL_TYPE_XP.get()) break;
         }
     }
 
@@ -82,12 +62,14 @@ public class MasteryManager {
             int currentMasteryStage = data.getCurrentMasteryStage(type);
             if (currentMasteryStage >= 3) continue;
 
-            MutableComponent typeDisplay = type.translatedComponent();
+            Component xpComp = Component.literal(String.valueOf(splitXp)).withStyle(ChatFormatting.AQUA);
+            Component typeComp = type.translatedComponent().withStyle(ChatFormatting.GOLD);
+            Component pokemonComp = defeatedPokemon.getDisplayName().withStyle(ChatFormatting.AQUA);
 
-            player.sendSystemMessage(Component.literal(
-                    "§aVocê ganhou §b" + splitXp + " XP §ade Maestria do tipo §e"
-                            + typeDisplay + " §apor vencer §b" + defeatedPokemon.getDisplayName().getString() + "§a!"
-            ));
+            player.sendSystemMessage(
+                    Component.translatable("pixelmonrpgsystem.mastery.victory_message", xpComp, typeComp, pokemonComp)
+                            .withStyle(ChatFormatting.GREEN)
+            );
 
             data.addMasteryXp(type, splitXp);
 
@@ -98,15 +80,16 @@ public class MasteryManager {
     }
 
     public static double getMasteryBonus(PlayerRPGCapability player, Pokemon pokemon) {
-        if (player == null) return 0.0;
-
         List<PixelmonType> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
         double maxBonus = 0.0;
 
         for (PixelmonType type : types) {
             MasteryProgress mastery = player.getMastery(type);
+            if (mastery == null) continue;
             double bonus = mastery.getBonusPercentage();
-            maxBonus = Math.max(maxBonus, bonus);
+            if (Double.isFinite(bonus)) {
+                maxBonus = Math.max(maxBonus, bonus);
+            }
         }
 
         return maxBonus;

@@ -28,7 +28,7 @@ public class PixelmonRPGHelper {
 
     public static List<PixelmonType> getPokemonTypesHelper(Pokemon pokemon) {
         return pokemon.getForm().getTypes().stream()
-                .map(t -> PixelmonType.of(t.value().icon().getTexture().getPath()))
+                .map(t -> PixelmonType.of(t.unwrapKey().get().location().getPath()))
                 .toList();
     }
 }

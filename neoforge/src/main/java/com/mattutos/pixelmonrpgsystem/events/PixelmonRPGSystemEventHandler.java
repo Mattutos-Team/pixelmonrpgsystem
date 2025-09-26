@@ -2,12 +2,13 @@ package com.mattutos.pixelmonrpgsystem.events;
 
 import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.mattutos.pixelmonrpgsystem.experience.ExperienceSource;
 import com.mattutos.pixelmonrpgsystem.experience.RPGExperienceManager;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryManager;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryStatusBase;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
-import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
+import com.mattutos.pixelmonrpgsystem.util.PixelmonRPGHelper;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.LevelUpEvent;
@@ -23,6 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Locale;
 
 public class PixelmonRPGSystemEventHandler {
 
@@ -139,26 +142,25 @@ public class PixelmonRPGSystemEventHandler {
 
                     event.getCaptureValues().setCatchRate(debufCacthRate);
                 } else {
-                    try {
-                        double masteryBonus = MasteryManager.getMasteryBonus(data, event.getPokemon());
-                        if (masteryBonus > 0) {
-                            int catchRate = event.getCaptureValues().getCatchRate();
-                            int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
+                    double masteryBonus = MasteryManager.getMasteryBonus(data, event.getPokemon());
+                    if (masteryBonus > 0) {
+                        int catchRate = event.getCaptureValues().getCatchRate();
+                        int bonusCatchRate = (int) (catchRate * (1.0 + masteryBonus / 100.0));
 
-                            Pokemon faintedPokemon = event.getPokemon();
-                            String pokemonType = String.valueOf(MasteryManager.getPokemonTypes(faintedPokemon).getFirst());
-                            PixelmonType pixelmonType = PixelmonType.of(pokemonType);
+                        Pokemon faintedPokemon = event.getPokemon();
+                        PixelmonType pixelmonType = PixelmonRPGHelper.getPokemonTypesHelper(faintedPokemon).getFirst();
 
-                            player.sendSystemMessage(Component.literal(
-                                    "§aBônus de §b" + (int) masteryBonus + "% §ana taxa de captura por Maestria do tipo §e"
-                                            + pixelmonType.translatedComponent() + "§a!"
-                            ));
+                        Component bonusComp = Component.literal(String.format(Locale.ROOT, "%.1f", masteryBonus))
+                                .withStyle(ChatFormatting.AQUA);
 
-                            event.getCaptureValues().setCatchRate(bonusCatchRate);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error calculating mastery bonus for capture: " + e.getMessage()); // (important-comment)
-                        e.printStackTrace();
+                        player.sendSystemMessage(
+                                Component.translatable("pixelmonrpgsystem.mastery.capture_bonus",
+                                        bonusComp,
+                                        pixelmonType.translatedComponent().withStyle(ChatFormatting.GOLD)
+                                ).withStyle(ChatFormatting.GREEN)
+                        );
+
+                        event.getCaptureValues().setCatchRate(bonusCatchRate);
                     }
                 }
             }
