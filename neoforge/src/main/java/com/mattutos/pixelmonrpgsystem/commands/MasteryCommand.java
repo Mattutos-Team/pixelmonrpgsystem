@@ -44,33 +44,67 @@ public class MasteryCommand {
             PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
             Map<PixelmonType, MasteryProgress> masteries = data.getAllMasteries();
 
-            player.sendSystemMessage(Component.literal("§6§l=== MAESTRIAS POKÉMON ==="));
-            player.sendSystemMessage(Component.literal(""));
+            // Header
+            player.sendSystemMessage(
+                    Component.translatable("command.mastery.list_all.header")
+                            .withStyle(ChatFormatting.GOLD)
+                            .withStyle(ChatFormatting.BOLD)
+            );
+            player.sendSystemMessage(Component.empty());
 
             if (masteries.isEmpty()) {
-                player.sendSystemMessage(Component.literal("§7Nenhuma maestria desenvolvida ainda."));
-                player.sendSystemMessage(Component.literal("§7Capture Pokémon e vença batalhas para ganhar XP!"));
+                player.sendSystemMessage(Component.translatable("command.mastery.list_all.none_title").withStyle(ChatFormatting.GRAY));
+                player.sendSystemMessage(Component.translatable("command.mastery.list_all.none_hint").withStyle(ChatFormatting.GRAY));
             } else {
                 for (Map.Entry<PixelmonType, MasteryProgress> entry : masteries.entrySet()) {
                     PixelmonType pixelmonType = entry.getKey();
                     MasteryProgress mastery = entry.getValue();
 
                     MasteryType masteryType = mastery.getStageName();
-                    player.sendSystemMessage(pixelmonType.translatedComponent().withStyle(ChatFormatting.GOLD).append(": ").append(masteryType.translatedComponent().withStyle(masteryType.getColor())));
-                    player.sendSystemMessage(Component.literal("  §eXP: §f" + mastery.getXp() + " / " + mastery.getXpForNextStage()));
 
+                    // Line with pixelmon type + mastery level (keeping the color of masteryType)
+                    player.sendSystemMessage(
+                            pixelmonType.translatedComponent().withStyle(ChatFormatting.GOLD)
+                                    .append(Component.translatable("command.mastery.list_all.entry_separator"))
+                                    .append(masteryType.translatedComponent().withStyle(masteryType.getColor()))
+                    );
+
+                    // XP: yellow label, white values
+                    player.sendSystemMessage(
+                            Component.translatable("command.mastery.list_all.entry_xp",
+                                    Component.literal(String.valueOf(mastery.getXp())).withStyle(ChatFormatting.WHITE),
+                                    Component.literal(String.valueOf(mastery.getXpForNextStage())).withStyle(ChatFormatting.WHITE)
+                            ).withStyle(ChatFormatting.YELLOW)
+                    );
+
+                    // Bonus (formatted with 1 decimal place)
                     double bonus = mastery.getBonusPercentage();
                     if (bonus > 0) {
-                        player.sendSystemMessage(Component.literal("  §eBônus: §a+" + bonus + "%"));
+                        String bonusStr = String.format(Locale.ROOT, "%.1f", bonus);
+                        player.sendSystemMessage(
+                                Component.translatable("command.mastery.list_all.entry_bonus",
+                                        Component.literal(bonusStr).withStyle(ChatFormatting.GREEN)
+                                ).withStyle(ChatFormatting.YELLOW)
+                        );
                     } else {
-                        player.sendSystemMessage(Component.literal("  §eBônus: §7Nenhum"));
+                        player.sendSystemMessage(
+                                Component.translatable("command.mastery.list_all.entry_bonus_none")
+                                        .withStyle(ChatFormatting.YELLOW)
+                        );
                     }
-                    player.sendSystemMessage(Component.literal(""));
+
+                    player.sendSystemMessage(Component.empty());
                 }
             }
 
-            player.sendSystemMessage(Component.literal("§7Use /maestria {tipo} para detalhes específicos"));
-            player.sendSystemMessage(Component.literal("§6§l========================"));
+            // Footer with hint
+            player.sendSystemMessage(Component.translatable("command.mastery.list_all.footer_hint").withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(
+                    Component.translatable("command.mastery.list_all.footer_end")
+                            .withStyle(ChatFormatting.GOLD)
+                            .withStyle(ChatFormatting.BOLD)
+            );
+
             return 0;
         };
     }

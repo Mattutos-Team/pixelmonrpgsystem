@@ -54,5 +54,15 @@
   "command.mastery.set_target": "Sua maestria de %s foi definida para %s!",
   "command.mastery.set_success": "Maestria de %s de %s definida para %s",
   "command.mastery.reset_target": "Todas as suas maestrias foram resetadas!",
-  "command.mastery.reset_success": "Todas as maestrias de %s foram resetadas"
+  "command.mastery.reset_success": "Todas as maestrias de %s foram resetadas",
+
+  "command.mastery.list_all.header": "=== MAESTRIAS POKÉMON ===",
+  "command.mastery.list_all.none_title": "Nenhuma maestria desenvolvida ainda.",
+  "command.mastery.list_all.none_hint": "Capture Pokémon e vença batalhas para ganhar XP!",
+  "command.mastery.list_all.entry_separator": ": ",
+  "command.mastery.list_all.entry_xp": "XP: %s / %s",
+  "command.mastery.list_all.entry_bonus": "Bônus: +%s%%",
+  "command.mastery.list_all.entry_bonus_none": "Bônus: Nenhum",
+  "command.mastery.list_all.footer_hint": "Use /mastery {type} para detalhes específicos",
+  "command.mastery.list_all.footer_end": "========================"
 }

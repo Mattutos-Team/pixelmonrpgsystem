@@ -54,5 +54,15 @@
   "command.mastery.set_target": "Your %s mastery has been set to %s!",
   "command.mastery.set_success": "%s mastery of %s set to %s",
   "command.mastery.reset_target": "All your masteries have been reset!",
-  "command.mastery.reset_success": "All masteries of %s have been reset"
+  "command.mastery.reset_success": "All masteries of %s have been reset",
+
+  "command.mastery.list_all.header": "=== POKÉMON MASTERIES ===",
+  "command.mastery.list_all.none_title": "No masteries developed yet.",
+  "command.mastery.list_all.none_hint": "Capture Pokémon and win battles to gain XP!",
+  "command.mastery.list_all.entry_separator": ": ",
+  "command.mastery.list_all.entry_xp": "XP: %s / %s",
+  "command.mastery.list_all.entry_bonus": "Bonus: +%s%%",
+  "command.mastery.list_all.entry_bonus_none": "Bonus: None",
+  "command.mastery.list_all.footer_hint": "Use /mastery {type} for specific details",
+  "command.mastery.list_all.footer_end": "========================"
 }
