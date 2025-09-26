@@ -38,9 +38,8 @@
   "pixelmonrpgsystem.jade.pixelmon.palette": "Paleta: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.gen": "Geração: %1$s",
 
-  "item.pixelmonrpgsystem.mastery_badge": "Ensignia de Maestria",
-  "pixelmonrpgsystem.mastery.novato": "Novato",
-  "pixelmonrpgsystem.mastery.aspirante": "Aspirante",
-  "pixelmonrpgsystem.mastery.experiente": "Experiente",
-  "pixelmonrpgsystem.mastery.mestre": "Mestre"
+  "pixelmonrpgsystem.mastery.type.novice": "Novato",
+  "pixelmonrpgsystem.mastery.type.aspirant": "Aspirante",
+  "pixelmonrpgsystem.mastery.type.expert": "Especialista",
+  "pixelmonrpgsystem.mastery.type.master": "Mestre"
 }

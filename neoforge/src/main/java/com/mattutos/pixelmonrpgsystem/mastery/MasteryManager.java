@@ -4,7 +4,7 @@ import com.mattutos.pixelmonrpgsystem.Config;
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
 import com.mattutos.pixelmonrpgsystem.util.PixelmonRPGHelper;
-import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,11 +44,11 @@ public class MasteryManager {
         PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
         if (data == null || data.getLevel() < 30) return;
 
-        List<TypeHelper> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
+        List<PixelmonType> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
         int xpAmount = Config.MASTERY_XP_CAPTURE.get();
 
 
-        for (TypeHelper type : types) {
+        for (PixelmonType type : types) {
             int currentMasteryExp = data.getCurrentMasteryStage(type);
             if (data.getMastery(type) == null) continue;
 
@@ -70,13 +70,13 @@ public class MasteryManager {
         PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
         if (data == null || data.getLevel() < 30) return;
 
-        List<TypeHelper> types = PixelmonRPGHelper.getPokemonTypesHelper(defeatedPokemon);
+        List<PixelmonType> types = PixelmonRPGHelper.getPokemonTypesHelper(defeatedPokemon);
         if (types.isEmpty()) return;
 
         int xpAmount = Config.MASTERY_XP_VICTORY.get();
         int splitXp = xpAmount / types.size();
 
-        for (TypeHelper type : types) {
+        for (PixelmonType type : types) {
             if (data.getMastery(type) == null) continue;
 
             int currentMasteryStage = data.getCurrentMasteryStage(type);
@@ -100,10 +100,10 @@ public class MasteryManager {
     public static double getMasteryBonus(PlayerRPGCapability player, Pokemon pokemon) {
         if (player == null) return 0.0;
 
-        List<TypeHelper> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
+        List<PixelmonType> types = PixelmonRPGHelper.getPokemonTypesHelper(pokemon);
         double maxBonus = 0.0;
 
-        for (TypeHelper type : types) {
+        for (PixelmonType type : types) {
             MasteryProgress mastery = player.getMastery(type);
             double bonus = mastery.getBonusPercentage();
             maxBonus = Math.max(maxBonus, bonus);

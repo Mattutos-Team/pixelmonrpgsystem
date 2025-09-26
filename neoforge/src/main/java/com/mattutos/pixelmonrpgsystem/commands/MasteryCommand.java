@@ -1,11 +1,11 @@
 package com.mattutos.pixelmonrpgsystem.commands;
 
 import com.mattutos.pixelmonrpgsystem.capability.PlayerRPGCapability;
+import com.mattutos.pixelmonrpgsystem.enums.MasteryType;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
-import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,6 +13,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.server.command.EnumArgument;
 
 public class MasteryCommand {
 
@@ -21,15 +22,15 @@ public class MasteryCommand {
                 .then(commandMasteryType())
                 .then(commandMasteryAdmin())
                 .executes(context -> {
-                    context.getSource().sendFailure(Component.literal("§cUso: /mastery {tipo} ou /mastery admin {player} {tipo} set to {nivel} ou /mastery admin {player} reset"));
+                    context.getSource().sendFailure(Component.literal("§cUso: /mastery {type} ou /mastery admin {player} set {type} {level} ou /mastery admin {player} reset"));
                     return 0;
                 });
 
         dispatcher.register(argumentBuilder);
     }
 
-    private static RequiredArgumentBuilder<CommandSourceStack, String> commandMasteryType() {
-        return Commands.argument("tipo", StringArgumentType.string())
+    private static RequiredArgumentBuilder<CommandSourceStack, PixelmonType> commandMasteryType() {
+        return Commands.argument("type", EnumArgument.enumArgument(PixelmonType.class))
                 .executes(context -> {
                     CommandSourceStack source = context.getSource();
 
@@ -38,7 +39,7 @@ public class MasteryCommand {
                         return 0;
                     }
 
-                    String nameType = StringArgumentType.getString(context, "tipo").toLowerCase();
+                    PixelmonType pixelmonType = context.getArgument("type", PixelmonType.class);
                     PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(player);
 
                     if (data == null) {
@@ -46,15 +47,9 @@ public class MasteryCommand {
                         return 0;
                     }
 
-                    if (!TypeHelper.isValidType(nameType)) {
-                        player.sendSystemMessage(Component.literal("§cTipo inválido."));
-                        return 0;
-                    }
+                    MasteryProgress mastery = data.getMastery(pixelmonType);
 
-                    TypeHelper typeHelper = TypeHelper.of(nameType);
-                    MasteryProgress mastery = data.getMastery(typeHelper);
-
-                    player.sendSystemMessage(Component.literal("§6[Maestria - ").append(typeHelper.translatedComponent()).append("]"));
+                    player.sendSystemMessage(Component.literal("§6[Maestria - ").append(pixelmonType.translatedComponent()).append("]"));
                     player.sendSystemMessage(Component.literal("§eNível: §f" + mastery.getStageName()));
                     player.sendSystemMessage(Component.literal("§eXP: §f" + mastery.getXp() + " / " + mastery.getXpForNextStage()));
 
@@ -73,36 +68,28 @@ public class MasteryCommand {
         return Commands.literal("admin")
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.argument("tipo", StringArgumentType.string())
-                                .then(Commands.literal("set")
-                                        .then(Commands.literal("to")
-                                                .then(Commands.argument("nivel", StringArgumentType.string())
-                                                        .executes(context -> {
-                                                            CommandSourceStack source = context.getSource();
-                                                            ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
-                                                            String nameType = StringArgumentType.getString(context, "tipo").toLowerCase();
-                                                            String masteryLevel = StringArgumentType.getString(context, "nivel").toLowerCase();
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("type", EnumArgument.enumArgument(PixelmonType.class))
+                                        .then(Commands.argument("level", EnumArgument.enumArgument(MasteryType.class))
+                                                .executes(context -> {
+                                                    CommandSourceStack source = context.getSource();
+                                                    ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
+                                                    PixelmonType pixelmonType = context.getArgument("type", PixelmonType.class);
+                                                    MasteryType masteryLevel = context.getArgument("level", MasteryType.class);
 
-                                                            PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(targetPlayer);
-                                                            if (data == null) {
-                                                                source.sendFailure(Component.literal("§cErro ao acessar dados do jogador"));
-                                                                return 0;
-                                                            }
+                                                    PlayerRPGCapability data = CapabilitiesRegistry.getPlayerRPGCapability(targetPlayer);
+                                                    if (data == null) {
+                                                        source.sendFailure(Component.literal("§cErro ao acessar dados do jogador"));
+                                                        return 0;
+                                                    }
 
-                                                            try {
-                                                                TypeHelper typeHelper = TypeHelper.of(nameType);
-                                                                data.setMastery(typeHelper, masteryLevel);
-                                                                String displayLevel = masteryLevel.substring(0, 1).toUpperCase() + masteryLevel.substring(1);
+                                                    data.setMastery(pixelmonType, masteryLevel);
 
-                                                                targetPlayer.sendSystemMessage(Component.literal("§6Sua maestria de " + typeHelper.translatedComponent() + " foi definida para " + displayLevel + "!"));
-                                                                source.sendSuccess(() -> Component.literal("§aMaestria de " + typeHelper.translatedComponent() + " de " + targetPlayer.getName().getString() + " definida para " + displayLevel), true);
-                                                                return 1;
-                                                            } catch (IllegalArgumentException e) {
-                                                                source.sendFailure(Component.literal("§cNível de maestria inválido. Use: novato, aspirante, experiente, mestre"));
-                                                                return 0;
-                                                            }
-                                                        })
-                                                )
+                                                    targetPlayer.sendSystemMessage(Component.literal("§6Sua maestria de " + pixelmonType.translatedComponent() + " foi definida para " + masteryLevel.translatedComponent() + "!"));
+                                                    source.sendSuccess(() -> Component.literal("§aMaestria de " + pixelmonType.translatedComponent() + " de " + targetPlayer.getName().getString() + " definida para " + masteryLevel.translatedComponent()), true);
+
+                                                    return 1;
+                                                })
                                         )
                                 )
                         )

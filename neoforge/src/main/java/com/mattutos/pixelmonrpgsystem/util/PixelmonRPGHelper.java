@@ -1,5 +1,6 @@
 package com.mattutos.pixelmonrpgsystem.util;
 
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.init.registry.ItemRegistration;
 import net.minecraft.core.component.DataComponents;
@@ -25,9 +26,9 @@ public class PixelmonRPGHelper {
         return item;
     }
 
-    public static List<TypeHelper> getPokemonTypesHelper(Pokemon pokemon) {
+    public static List<PixelmonType> getPokemonTypesHelper(Pokemon pokemon) {
         return pokemon.getForm().getTypes().stream()
-                .map(TypeHelper::new)
+                .map(t -> PixelmonType.of(t.value().icon().getTexture().getPath()))
                 .toList();
     }
 }

@@ -3,7 +3,7 @@ package com.mattutos.pixelmonrpgsystem.plugin.jade.entity;
 import com.mattutos.pixelmonrpgsystem.plugin.jade.PokedexPlugin;
 import com.mattutos.pixelmonrpgsystem.plugin.jade.util.ElementHelperExt;
 import com.mattutos.pixelmonrpgsystem.util.PixelmonRPGHelper;
-import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.pokedex.PokeDexStorageProxy;
 import com.pixelmonmod.pixelmon.api.pokedex.PokedexStorage;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
@@ -64,7 +64,7 @@ public enum PixelmonEntityComponentProvider implements IEntityComponentProvider,
 
     private void appendInfoPokemonBasicInfos(ITooltip iTooltip, EntityAccessor entityAccessor) {
         PixelmonEntity pixelmonEntity = (PixelmonEntity) entityAccessor.getEntity();
-        List<TypeHelper> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity.getPokemon());
+        List<PixelmonType> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity.getPokemon());
 
         iTooltip.add(elementHelperExt.spacer(5, 0).align(IElement.Align.CENTER));
         pokemonTypesHelper.forEach(type -> {
@@ -78,7 +78,7 @@ public enum PixelmonEntityComponentProvider implements IEntityComponentProvider,
         PixelmonEntity pixelmonEntity = (PixelmonEntity) entityAccessor.getEntity();
         CompoundTag serverData = entityAccessor.getServerData();
         Pokemon pokemon = pixelmonEntity.getPokemon();
-        List<TypeHelper> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity.getPokemon());
+        List<PixelmonType> pokemonTypesHelper = PixelmonRPGHelper.getPokemonTypesHelper(pixelmonEntity.getPokemon());
 
         iTooltip.add(Component.translatable("pixelmonrpgsystem.jade.pixelmon.id_dex", pokemon.getDex()));
 

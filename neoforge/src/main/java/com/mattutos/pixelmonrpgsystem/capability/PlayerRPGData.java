@@ -1,8 +1,9 @@
 package com.mattutos.pixelmonrpgsystem.capability;
 
 import com.mattutos.pixelmonrpgsystem.Config;
+import com.mattutos.pixelmonrpgsystem.enums.MasteryType;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryProgress;
-import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.pokemon.ExperienceGroup;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -10,14 +11,14 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
     private static final ExperienceGroup experienceGroup = ExperienceGroup.FAST;
+    private final Map<PixelmonType, MasteryProgress> masteries = new HashMap<>();
+
     private int level = 5;
     private int experience = PlayerRPGData.getTotalExperienceToThisLevel(level);
     private long lastDailyReward = 0;
-    private final Map<TypeHelper, MasteryProgress> masteries = new HashMap<>();
 
     public static int getExperienceForThisLevel(int level) {
 //        return (level * level * 100) + 100;
@@ -85,8 +86,8 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         tag.putLong("lastDailyReward", lastDailyReward);
 
         CompoundTag masteriesTag = new CompoundTag();
-        masteries.forEach((key, value) -> {
-            masteriesTag.put(key.name(), value.serializeNBT(provider));
+        masteries.forEach((pixelmonType, value) -> {
+            masteriesTag.put(pixelmonType.getKey(), value.serializeNBT(provider));
         });
         tag.put("masteries", masteriesTag);
 
@@ -105,7 +106,7 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
             for (String key : masteriesTag.getAllKeys()) {
                 MasteryProgress progress = new MasteryProgress();
                 progress.deserializeNBT(provider, masteriesTag.getCompound(key));
-                masteries.put(TypeHelper.of(key), progress);
+                masteries.put(PixelmonType.of(key), progress);
             }
         }
     }
@@ -125,11 +126,11 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         return lastDailyReward;
     }
 
-    public MasteryProgress getMastery(TypeHelper type) {
+    public MasteryProgress getMastery(PixelmonType type) {
         return masteries.computeIfAbsent(type, k -> new MasteryProgress());
     }
 
-    public void addMasteryXp(TypeHelper type, int xp) {
+    public void addMasteryXp(PixelmonType type, int xp) {
         int currentXp = getMastery(type).getXp();
         int currentLevel = getMastery(type).getStage();
 
@@ -138,17 +139,17 @@ public class PlayerRPGData implements INBTSerializable<CompoundTag>, Cloneable {
         }
     }
 
-    public Map<TypeHelper, MasteryProgress> getAllMasteries() {
+    public Map<PixelmonType, MasteryProgress> getAllMasteries() {
         return masteries;
     }
 
-    public void setMastery(TypeHelper type, String masteryLevel) {
+    public void setMastery(PixelmonType type, MasteryType masteryLevel) {
         MasteryProgress progress = getMastery(type);
-        switch (masteryLevel.toLowerCase()) {
-            case "novato" -> progress.setStageAndXp(0, 0);
-            case "aspirante" -> progress.setStageAndXp(1, 1000);
-            case "experiente" -> progress.setStageAndXp(2, 1800);
-            case "mestre" -> progress.setStageAndXp(3, 4000);
+        switch (masteryLevel) {
+            case NOVICE -> progress.setStageAndXp(0, 0);
+            case ASPIRANT -> progress.setStageAndXp(1, 1000);
+            case EXPERT -> progress.setStageAndXp(2, 1800);
+            case MASTER -> progress.setStageAndXp(3, 4000);
             default -> throw new IllegalArgumentException("Invalid mastery level: " + masteryLevel);
         }
         masteries.put(type, progress);

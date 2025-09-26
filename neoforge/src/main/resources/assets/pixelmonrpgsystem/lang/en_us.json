@@ -19,6 +19,7 @@
   "pixelmonrpgsystem.message.xp.gained.pokemon_capture": "You gained +%1$s XP (Source: Pokemon Capture)",
   "pixelmonrpgsystem.message.xp.gained.pokemon_battle": "You gained +%1$s XP (Source: Pokemon Battle)",
   "pixelmonrpgsystem.message.xp.gained.unknown": "You gained +%1$s XP",
+
   "pixelmonrpgsystem.dailyreward.title": "Daily Reward",
   "pixelmonrpgsystem.dailyreward.button": "🎁 Daily Reward",
   "pixelmonrpgsystem.dailyreward.button.available": "🎁 Claim Reward",
@@ -26,21 +27,19 @@
   "pixelmonrpgsystem.dailyreward.confirm": "Confirm",
   "pixelmonrpgsystem.dailyreward.already_claimed": "You already claimed your daily reward today.",
   "pixelmonrpgsystem.dailyreward.claimed_success": "Daily reward claimed successfully!",
+
+  "config.jade.plugin_pixelmonrpgsystem.pixelmon_entity": "Pixelmon Entity",
   "pixelmonrpgsystem.jade.pixelmon.owner": "Owner: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.id_dex": "ID Dex: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.gender": "Gender: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.seen": "Seen: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.caught": "Caught: %1$s",
-
-  "config.jade.plugin_pixelmonrpgsystem.pixelmon_entity": "Pixelmon Entity",
   "pixelmonrpgsystem.jade.pixelmon.form": "Form: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.palette": "Palette: %1$s",
   "pixelmonrpgsystem.jade.pixelmon.gen": "Gen: %1$s",
 
-  "item.pixelmonrpgsystem.mastery_badge": "Mastery Badge",
-  "pixelmonrpgsystem.mastery.novato": "Novice",
-  "pixelmonrpgsystem.mastery.aspirante": "Aspirant",
-  "pixelmonrpgsystem.mastery.experiente": "Experienced",
-  "pixelmonrpgsystem.mastery.mestre": "Master"
-
+  "pixelmonrpgsystem.mastery.type.novice": "Novice",
+  "pixelmonrpgsystem.mastery.type.aspirant": "Aspirant",
+  "pixelmonrpgsystem.mastery.type.expert": "Expert",
+  "pixelmonrpgsystem.mastery.type.master": "Master"
 }

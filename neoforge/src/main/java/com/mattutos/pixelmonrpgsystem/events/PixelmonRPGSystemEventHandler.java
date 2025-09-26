@@ -7,7 +7,7 @@ import com.mattutos.pixelmonrpgsystem.experience.RPGExperienceManager;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryManager;
 import com.mattutos.pixelmonrpgsystem.mastery.MasteryStatusBase;
 import com.mattutos.pixelmonrpgsystem.registry.CapabilitiesRegistry;
-import com.mattutos.pixelmonrpgsystem.util.TypeHelper;
+import com.mattutos.pixelmonrpgsystem.enums.PixelmonType;
 import com.pixelmonmod.pixelmon.api.events.CaptureEvent;
 import com.pixelmonmod.pixelmon.api.events.ExperienceGainEvent;
 import com.pixelmonmod.pixelmon.api.events.LevelUpEvent;
@@ -147,11 +147,11 @@ public class PixelmonRPGSystemEventHandler {
 
                             Pokemon faintedPokemon = event.getPokemon();
                             String pokemonType = String.valueOf(MasteryManager.getPokemonTypes(faintedPokemon).getFirst());
-                            TypeHelper typeHelper = TypeHelper.of(pokemonType);
+                            PixelmonType pixelmonType = PixelmonType.of(pokemonType);
 
                             player.sendSystemMessage(Component.literal(
                                     "§aBônus de §b" + (int) masteryBonus + "% §ana taxa de captura por Maestria do tipo §e"
-                                            + typeHelper.translatedComponent() + "§a!"
+                                            + pixelmonType.translatedComponent() + "§a!"
                             ));
 
                             event.getCaptureValues().setCatchRate(bonusCatchRate);
